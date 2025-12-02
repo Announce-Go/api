@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import random
-from urllib.parse import quote
+from urllib.parse import quote, parse_qs, urlparse
 from playwright.async_api import async_playwright
 
 
@@ -28,6 +28,10 @@ def get_random_user_agent() -> str:
     """랜덤 User-Agent 반환"""
     return random.choice(USER_AGENTS)
 
+
+# =============================================================================
+# 플레이스 순위 조회
+# =============================================================================
 
 async def find_place_section(page):
     """
@@ -134,6 +138,137 @@ async def get_place_rank(keyword: str, place_id: str) -> int | None:
                         rank += 1
                         if link_place_id == place_id:
                             return rank
+
+            return None
+
+        except Exception as e:
+            print(f"Crawling error: {e}")
+            return None
+
+        finally:
+            await browser.close()
+
+
+# =============================================================================
+# 블로그 순위 조회
+# =============================================================================
+
+async def find_popular_section(page):
+    """
+    인기글 섹션 찾기
+
+    '인기글' 텍스트가 포함된 헤더의 ancestor 섹션을 찾음
+    """
+    blog_header = await page.query_selector('h2:has-text("인기글"), strong:has-text("인기글"), span:has-text("인기글")')
+    if blog_header:
+        section = await blog_header.evaluate_handle('''
+            (el) => {
+                let current = el;
+                for (let i = 0; i < 5; i++) {
+                    current = current.parentElement;
+                    if (!current) return null;
+                    if (current.tagName === 'SECTION' ||
+                        current.className?.includes('sc_new') ||
+                        current.className?.includes('blog')) {
+                        return current;
+                    }
+                }
+                return current;
+            }
+        ''')
+        element = section.as_element()
+        if element:
+            return element
+
+    return None
+
+
+def extract_blog_id(url: str) -> tuple[str, str] | None:
+    """
+    블로그 URL에서 블로그 ID와 글 번호 추출
+
+    지원 URL 형식:
+    - https://blog.naver.com/{blog_id}/{log_no}
+    - https://m.blog.naver.com/{blog_id}/{log_no}
+    - https://blog.naver.com/PostView.naver?blogId={blog_id}&logNo={log_no}
+    - https://blog.naver.com/PostView.nhn?blogId={blog_id}&logNo={log_no}
+
+    Returns:
+        tuple[str, str]: (blog_id, log_no)
+        None: 추출 실패
+    """
+    parsed = urlparse(url)
+
+    # 쿼리 파라미터 형식: PostView.naver?blogId=xxx&logNo=xxx
+    if 'PostView' in parsed.path:
+        params = parse_qs(parsed.query)
+        blog_id = params.get('blogId', [None])[0]
+        log_no = params.get('logNo', [None])[0]
+        if blog_id and log_no:
+            return (blog_id, log_no)
+
+    # 경로 형식: /blog_id/log_no
+    path_parts = parsed.path.strip('/').split('/')
+    if len(path_parts) >= 2:
+        blog_id = path_parts[0]
+        log_no = path_parts[1]
+        # log_no가 숫자인지 확인
+        if log_no.isdigit():
+            return (blog_id, log_no)
+
+    return None
+
+
+async def get_blog_rank(keyword: str, blog_id: str, log_no: str) -> int | None:
+    """
+    네이버 검색 블로그 탭에서 특정 블로그 글의 순위 반환
+
+    Args:
+        keyword: 검색 키워드
+        blog_id: 블로그 아이디
+        log_no: 글 번호
+
+    Returns:
+        int: 순위 (1부터 시작)
+        None: 순위권 외
+    """
+    search_url = f"https://search.naver.com/search.naver?where=blog&query={quote(keyword)}"
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        context = await browser.new_context(
+            user_agent=get_random_user_agent()
+        )
+        page = await context.new_page()
+
+        try:
+            await page.goto(search_url, wait_until="networkidle", timeout=15000)
+
+            # 인기글 섹션 찾기
+            popular_section = await find_popular_section(page)
+
+            if not popular_section:
+                print(f"Error: 인기글 섹션을 찾을 수 없음 (keyword: {keyword})")
+                return None
+
+            # 섹션 내에서 블로그 링크들 찾기
+            blog_links = await popular_section.query_selector_all('a[href*="blog.naver.com"]')
+
+            # 중복 제거를 위해 이미 본 blog_id 추적 (같은 블로거는 하나로 묶음)
+            seen_blog_ids = set()
+            rank = 0
+
+            for link in blog_links:
+                href = await link.get_attribute("href")
+                if href:
+                    link_info = extract_blog_id(href)
+                    if link_info:
+                        link_blog_id, link_log_no = link_info
+                        if link_blog_id not in seen_blog_ids:
+                            seen_blog_ids.add(link_blog_id)
+                            rank += 1
+                            if link_blog_id == blog_id and link_log_no == log_no:
+                                return rank
 
             return None
 
