@@ -1,6 +1,5 @@
 services:
   api:
-    build: .
     image: songhae/announce-go-api
     container_name: announce-go-api
     ports:
