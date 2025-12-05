@@ -3,7 +3,8 @@ from __future__ import annotations
 import re
 import random
 from urllib.parse import quote, parse_qs, urlparse
-from playwright.async_api import async_playwright
+
+from app.crawler.browser_pool import BrowserPool
 
 
 USER_AGENTS = [
@@ -105,48 +106,47 @@ async def get_place_rank(keyword: str, place_id: str) -> int | None:
     """
     search_url = f"https://search.naver.com/search.naver?where=nexearch&query={quote(keyword)}"
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context(
-            user_agent=get_random_user_agent()
-        )
-        page = await context.new_page()
+    browser = await BrowserPool.get_browser()
+    context = await browser.new_context(
+        user_agent=get_random_user_agent()
+    )
+    page = await context.new_page()
 
-        try:
-            await page.goto(search_url, wait_until="networkidle", timeout=15000)
+    try:
+        await page.goto(search_url, wait_until="domcontentloaded", timeout=15000)
 
-            # 플레이스 섹션 찾기
-            place_section = await find_place_section(page)
+        # 플레이스 섹션 찾기
+        place_section = await find_place_section(page)
 
-            if not place_section:
-                print(f"Error: 플레이스 섹션을 찾을 수 없음 (keyword: {keyword})")
-                return None
-
-            # 플레이스 섹션 내에서 업체명 링크들 찾기
-            place_links = await place_section.query_selector_all('a[href*="map.naver.com"][href*="place/"]')
-
-            # 중복 제거를 위해 이미 본 place_id 추적
-            seen_ids = set()
-            rank = 0
-
-            for link in place_links:
-                href = await link.get_attribute("href")
-                if href:
-                    link_place_id = extract_place_id(href)
-                    if link_place_id and link_place_id not in seen_ids:
-                        seen_ids.add(link_place_id)
-                        rank += 1
-                        if link_place_id == place_id:
-                            return rank
-
+        if not place_section:
+            print(f"Error: 플레이스 섹션을 찾을 수 없음 (keyword: {keyword})")
             return None
 
-        except Exception as e:
-            print(f"Crawling error: {e}")
-            return None
+        # 플레이스 섹션 내에서 업체명 링크들 찾기
+        place_links = await place_section.query_selector_all('a[href*="map.naver.com"][href*="place/"]')
 
-        finally:
-            await browser.close()
+        # 중복 제거를 위해 이미 본 place_id 추적
+        seen_ids = set()
+        rank = 0
+
+        for link in place_links:
+            href = await link.get_attribute("href")
+            if href:
+                link_place_id = extract_place_id(href)
+                if link_place_id and link_place_id not in seen_ids:
+                    seen_ids.add(link_place_id)
+                    rank += 1
+                    if link_place_id == place_id:
+                        return rank
+
+        return None
+
+    except Exception as e:
+        print(f"Crawling error: {e}")
+        return None
+
+    finally:
+        await context.close()
 
 
 # =============================================================================
@@ -234,47 +234,46 @@ async def get_blog_rank(keyword: str, blog_id: str, log_no: str) -> int | None:
     """
     search_url = f"https://search.naver.com/search.naver?where=blog&query={quote(keyword)}"
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context(
-            user_agent=get_random_user_agent()
-        )
-        page = await context.new_page()
+    browser = await BrowserPool.get_browser()
+    context = await browser.new_context(
+        user_agent=get_random_user_agent()
+    )
+    page = await context.new_page()
 
-        try:
-            await page.goto(search_url, wait_until="networkidle", timeout=15000)
+    try:
+        await page.goto(search_url, wait_until="domcontentloaded", timeout=15000)
 
-            # 인기글 섹션 찾기
-            popular_section = await find_popular_section(page)
+        # 인기글 섹션 찾기
+        popular_section = await find_popular_section(page)
 
-            if not popular_section:
-                print(f"Error: 인기글 섹션을 찾을 수 없음 (keyword: {keyword})")
-                return None
-
-            # 섹션 내에서 블로그 링크들 찾기
-            blog_links = await popular_section.query_selector_all('a[href*="blog.naver.com"]')
-
-            # 중복 제거를 위해 이미 본 blog_id 추적 (같은 블로거는 하나로 묶음)
-            seen_blog_ids = set()
-            rank = 0
-
-            for link in blog_links:
-                href = await link.get_attribute("href")
-                if href:
-                    link_info = extract_blog_id(href)
-                    if link_info:
-                        link_blog_id, link_log_no = link_info
-                        if link_blog_id not in seen_blog_ids:
-                            seen_blog_ids.add(link_blog_id)
-                            rank += 1
-                            if link_blog_id == blog_id and link_log_no == log_no:
-                                return rank
-
+        if not popular_section:
+            print(f"Error: 인기글 섹션을 찾을 수 없음 (keyword: {keyword})")
             return None
 
-        except Exception as e:
-            print(f"Crawling error: {e}")
-            return None
+        # 섹션 내에서 블로그 링크들 찾기
+        blog_links = await popular_section.query_selector_all('a[href*="blog.naver.com"]')
 
-        finally:
-            await browser.close()
+        # 중복 제거를 위해 이미 본 blog_id 추적 (같은 블로거는 하나로 묶음)
+        seen_blog_ids = set()
+        rank = 0
+
+        for link in blog_links:
+            href = await link.get_attribute("href")
+            if href:
+                link_info = extract_blog_id(href)
+                if link_info:
+                    link_blog_id, link_log_no = link_info
+                    if link_blog_id not in seen_blog_ids:
+                        seen_blog_ids.add(link_blog_id)
+                        rank += 1
+                        if link_blog_id == blog_id and link_log_no == log_no:
+                            return rank
+
+        return None
+
+    except Exception as e:
+        print(f"Crawling error: {e}")
+        return None
+
+    finally:
+        await context.close()
