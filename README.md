@@ -29,6 +29,25 @@ playwright install chromium
 uvicorn app.main:app --reload
 ```
 
+## Docker
+
+### 멀티플랫폼 이미지 빌드 및 푸시
+
+```bash
+# buildx 빌더 생성 (최초 1회)
+docker buildx create --name mybuilder --use
+docker buildx inspect --bootstrap
+
+# 멀티플랫폼 빌드 및 푸시 (linux/amd64, linux/arm64)
+docker buildx build --platform linux/amd64,linux/arm64 -t songhae/announce-go-api:latest --push .
+```
+
+### 컨테이너 실행
+
+```bash
+docker-compose up -d
+```
+
 ## API 엔드포인트
 
 ### 플레이스 순위 조회
