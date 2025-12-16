@@ -277,3 +277,103 @@ async def get_blog_rank(keyword: str, blog_id: str, log_no: str) -> int | None:
 
     finally:
         await context.close()
+
+
+# =============================================================================
+# 카페 순위 조회
+# =============================================================================
+
+def extract_cafe_id(url: str) -> tuple[str, str] | None:
+    """
+    카페 URL에서 카페 ID와 게시글 번호 추출
+
+    지원 URL 형식:
+    - https://cafe.naver.com/{cafe_id}/{article_id}
+    - https://m.cafe.naver.com/{cafe_id}/{article_id}
+    - https://cafe.naver.com/ArticleRead.nhn?clubid={club_id}&articleid={article_id}
+
+    Returns:
+        tuple[str, str]: (cafe_id, article_id)
+        None: 추출 실패
+    """
+    parsed = urlparse(url)
+
+    # 쿼리 파라미터 형식: ArticleRead.nhn?clubid=xxx&articleid=xxx
+    if 'ArticleRead' in parsed.path:
+        params = parse_qs(parsed.query)
+        club_id = params.get('clubid', [None])[0]
+        article_id = params.get('articleid', [None])[0]
+        if club_id and article_id:
+            return (club_id, article_id)
+
+    # 경로 형식: /cafe_id/article_id
+    path_parts = parsed.path.strip('/').split('/')
+    if len(path_parts) >= 2:
+        cafe_id = path_parts[0]
+        article_id = path_parts[1]
+        # article_id가 숫자인지 확인
+        if article_id.isdigit():
+            return (cafe_id, article_id)
+
+    return None
+
+
+async def get_cafe_rank(keyword: str, cafe_id: str, article_id: str) -> int | None:
+    """
+    네이버 검색 카페 탭에서 특정 카페 글의 순위 반환
+
+    Args:
+        keyword: 검색 키워드
+        cafe_id: 카페 아이디
+        article_id: 게시글 번호
+
+    Returns:
+        int: 순위 (1부터 시작)
+        None: 순위권 외
+    """
+    search_url = f"https://search.naver.com/search.naver?where=article&query={quote(keyword)}"
+
+    browser = await BrowserPool.get_browser()
+    context = await browser.new_context(
+        user_agent=get_random_user_agent()
+    )
+    page = await context.new_page()
+
+    try:
+        await page.goto(search_url, wait_until="domcontentloaded", timeout=15000)
+
+        # 인기글 섹션 찾기
+        popular_section = await find_popular_section(page)
+
+        if not popular_section:
+            print(f"Error: 인기글 섹션을 찾을 수 없음 (keyword: {keyword})")
+            return None
+
+        # 섹션 내에서 카페 링크들 찾기
+        cafe_links = await popular_section.query_selector_all('a[href*="cafe.naver.com"]')
+
+        # 중복 제거를 위해 이미 본 게시글 추적
+        seen_articles = set()
+        rank = 0
+
+        for link in cafe_links:
+            href = await link.get_attribute("href")
+            if href:
+                link_info = extract_cafe_id(href)
+                if link_info:
+                    link_cafe_id, link_article_id = link_info
+                    article_key = f"{link_cafe_id}_{link_article_id}"
+                    if article_key not in seen_articles:
+                        seen_articles.add(article_key)
+                        rank += 1
+                        if link_cafe_id == cafe_id and link_article_id == article_id:
+                            return rank
+
+        return None
+
+    except Exception as e:
+        print(f"Crawling error: {e}")
+        return None
+
+    finally:
+        await context.close()

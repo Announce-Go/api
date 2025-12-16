@@ -5,6 +5,8 @@ from app.crawler.naver import (
     extract_place_id,
     get_blog_rank,
     extract_blog_id,
+    get_cafe_rank,
+    extract_cafe_id,
 )
 
 router = APIRouter(prefix="/api/v1/ranks", tags=["ranks"])
@@ -52,6 +54,31 @@ async def check_blog_rank(keyword: str, url: str) -> int:
 
     blog_id, log_no = blog_info
     rank = await get_blog_rank(keyword, blog_id, log_no)
+
+    if rank is None:
+        return -1
+
+    return rank
+
+
+@router.get("/cafe")
+async def check_cafe_rank(keyword: str, url: str) -> int:
+    """
+    카페 순위 조회
+
+    Args:
+        keyword: 검색어
+        url: 카페 URL
+
+    Returns:
+        int: 순위 (1부터 시작), 순위권 외면 -1
+    """
+    cafe_info = extract_cafe_id(url)
+    if not cafe_info:
+        raise HTTPException(status_code=400, detail="Invalid cafe URL")
+
+    cafe_id, article_id = cafe_info
+    rank = await get_cafe_rank(keyword, cafe_id, article_id)
 
     if rank is None:
         return -1

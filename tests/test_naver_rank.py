@@ -6,6 +6,8 @@ from app.crawler.naver import (
     extract_place_id,
     get_blog_rank,
     extract_blog_id,
+    get_cafe_rank,
+    extract_cafe_id,
 )
 
 
@@ -40,3 +42,22 @@ async def test_blog_rank():
     print(f"\n키워드: {keyword}")
     print(f"Blog ID: {blog_id}, Log No: {log_no}")
     print(f"순위: {rank}위" if rank else "순위권 외")
+
+
+@pytest.mark.asyncio
+async def test_cafe_rank():
+    """카페 순위 조회 테스트"""
+    keyword = "강남역 한의원"
+    url = "https://cafe.naver.com/air94/69148"
+
+    cafe_info = extract_cafe_id(url)
+    assert cafe_info is not None
+
+    cafe_id, article_id = cafe_info
+    rank = await get_cafe_rank(keyword, cafe_id, article_id)
+
+    print(f"\n키워드: {keyword}")
+    print(f"Cafe ID: {cafe_id}, Article ID: {article_id}")
+    print(f"순위: {rank}위" if rank else "순위권 외")
+
+    assert rank is not None
