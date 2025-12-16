@@ -6,7 +6,7 @@
 
 ### 1.1 목적
 
-네이버 검색 결과에서 특정 콘텐츠(플레이스, 인기글)의 노출 순위를 확인하고, 일별 순위 변동을 트래킹하는 웹 서비스
+네이버 검색 결과에서 특정 콘텐츠(플레이스, 블로그, 카페)의 노출 순위를 확인하고, 일별 순위 변동을 트래킹하는 웹 서비스
 
 ### 1.2 주요 기능
 
@@ -20,10 +20,11 @@
 
 ### 2.1 검색 대상
 
-| 구분 | 설명 | 식별 방식 |
-|------|------|-----------|
+| 구분   | 설명 | 식별 방식          |
+|------|------|----------------|
 | 플레이스 | 네이버 지도/플레이스 검색 결과 | URL 내 Place ID |
-| 인기글 | 건강·의학 등 카테고리별 인기글 섹션 | 블로그/카페 URL |
+| 블로그  | 인기글 섹션 | 블로그 글 ID       |
+| 카페   | 인기글 섹션  | 카페 글 ID        |
 
 ### 2.2 순위 조회
 
@@ -131,48 +132,110 @@
 
 ## 5. 시스템 아키텍처
 
+```mermaid
+graph TB
+    Client[Client<br/>웹/모바일]
+
+    subgraph API["FastAPI Server"]
+        direction TB
+        
+        subgraph Endpoints["API Endpoints"]
+            AuthAPI[Auth API<br/>로그인/회원가입]
+            KeywordAPI[Keyword API<br/>키워드 CRUD]
+            RankAPI[Rank API<br/>실시간 순위 조회]
+            HistoryAPI[History API<br/>순위 히스토리 조회]
+        end
+        
+        subgraph Services["Service Layer"]
+            AuthService[AuthService]
+            KeywordService[KeywordService]
+            RankService[RankService<br/>실시간 조회 전용]
+        end
+        
+        subgraph Shared["공유 모듈"]
+            Crawler[Crawler<br/>place, blog, cafe]
+        end
+    end
+
+    Redis[(Redis<br/>Session/Cache)]
+    PostgreSQL[(PostgreSQL<br/>Users, Keywords,<br/>RankHistory)]
+    Naver[네이버 검색]
+
+    Client --> AuthAPI
+    Client --> KeywordAPI
+    Client --> RankAPI
+    Client --> HistoryAPI
+
+    AuthAPI --> AuthService
+    KeywordAPI --> KeywordService
+    RankAPI --> RankService
+    HistoryAPI --> RankService
+
+    AuthService --> Redis
+    KeywordService --> PostgreSQL
+    RankService --> PostgreSQL
+    RankService --> Crawler
+    
+    Crawler --> Naver
+
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                          Client                              │
-└─────────────────────────────┬───────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      FastAPI Server                          │
-│  ┌───────────┐  ┌─────────────┐  ┌───────────────────────┐  │
-│  │ Auth API  │  │  Rank API   │  │  Keyword Mgmt API     │  │
-│  └─────┬─────┘  └──────┬──────┘  └───────────┬───────────┘  │
-│        │               │                     │              │
-│        │               ▼                     │              │
-│        │     ┌─────────────────┐             │              │
-│        │     │  RankService    │             │              │
-│        │     └────────┬────────┘             │              │
-│        │              │                      │              │
-│        │              ▼                      │              │
-│        │     ┌─────────────────┐             │              │
-│        │     │    Crawler      │ ◄───────────┼──────┐       │
-│        │     │ (place, post)   │             │      │       │
-│        │     └─────────────────┘             │      │       │
-└────────┼──────────────┬──────────────────────┼──────┼───────┘
-         │              │                      │      │
-         ▼              │                      ▼      │
-┌───────────────┐       │              ┌─────────────────────────┐
-│    Redis      │       │              │      Celery Worker      │
-│(Session/Cache)│       │              │  ┌───────────────────┐  │
-└───────────────┘       │              │  │   RankService     │  │
-                        │              │  │   (check & save)  │  │
-                        ▼              │  └───────────────────┘  │
-                ┌─────────────┐        └────────────┬────────────┘
-                │ PostgreSQL  │                     │
-                │    (DB)     │ ◄───────────────────┘
-                └─────────────┘          (순위 저장)
-                        ▲
-                        │
-              ┌─────────┴─────────┐
-              │    Celery Beat    │
-              │ (Daily Scheduler) │
-              └───────────────────┘
+```mermaid
+graph TB
+    subgraph Schedule["스케줄링"]
+        Beat[Celery Beat<br/>매일 01:00:00]
+    end
+
+    subgraph Broker["메시지 브로커"]
+        Redis[Redis<br/>Task Queue]
+    end
+
+    subgraph Phase1["Phase 1: 마스터 태스크"]
+        MasterWorker[Worker A]
+        MasterTask["daily_rank_check_all<br/>1. DB 키워드 조회<br/>2. 개별 태스크 생성<br/>3. Redis 전송"]
+    end
+
+    subgraph Phase2["Phase 2: 병렬 처리"]
+        direction TB
+        
+        subgraph Workers["Celery Workers Pool"]
+            W1[Worker A]
+            W2[Worker B]
+            W3[Worker C]
+            W4[Worker D]
+            W5[Worker E]
+        end
+        
+        IndividualTask["check_single_keyword_rank<br/>1. 키워드 정보 조회<br/>2. 크롤링 실행<br/>3. 순위 저장<br/>4. 실패시 재시도"]
+        
+        Crawler[Crawler 모듈<br/>get_place_rank<br/>get_blog_rank<br/>get_cafe_rank]
+    end
+
+    DB1[(PostgreSQL<br/>Keywords)]
+    DB2[(PostgreSQL<br/>RankHistory)]
+    Naver[네이버 검색]
+
+    Beat --> Redis
+    Redis --> MasterWorker
+    MasterWorker --> MasterTask
+    
+    MasterTask --> DB1
+    MasterTask --> Redis
+    
+    Redis -.-> W1
+    Redis -.-> W2
+    Redis -.-> W3
+    Redis -.-> W4
+    Redis -.-> W5
+    
+    W1 & W2 & W3 & W4 & W5 --> IndividualTask
+    IndividualTask --> DB1
+    IndividualTask --> Crawler
+    Crawler --> Naver
+    IndividualTask --> DB2
 ```
+
+
+
 
 ### 5.1 주요 흐름
 
@@ -184,7 +247,7 @@
 
 ### 5.2 공통 모듈
 
-- **Crawler**: 네이버 크롤링 로직 (place, popular_post)
+- **Crawler**: 네이버 크롤링 로직 (place, blog, cafe)
 - **RankService**: 크롤러 호출 + 비즈니스 로직
   - `check_rank()`: 순위 조회만 (실시간용)
   - `check_and_save_rank()`: 순위 조회 + DB 저장 (배치용)
@@ -225,7 +288,8 @@ naver-rank-tracker/
 │   ├── crawler/
 │   │   ├── base.py
 │   │   ├── place.py
-│   │   └── popular_post.py
+│   │   ├── popular_post.py
+│   │   └── cafe.py
 │   └── tasks/
 │       ├── celery.py
 │       └── rank_check.py
