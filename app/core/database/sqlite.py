@@ -11,11 +11,11 @@ from app.models.base import Base
 class SQLiteDatabase(AbstractDatabase):
     """SQLite 데이터베이스 (개발/테스트용)"""
 
-    def __init__(self, database_url: str):
+    def __init__(self, database_url: str, echo: bool = False):
         self._database_url = database_url
         self._engine = create_async_engine(
             database_url,
-            echo=False,
+            echo=echo,
             connect_args={"check_same_thread": False},
         )
         self._session_factory = async_sessionmaker(

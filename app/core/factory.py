@@ -30,11 +30,11 @@ async def get_database(settings: Settings) -> AbstractDatabase:
     if settings.DB_TYPE == DatabaseType.POSTGRESQL:
         from app.core.database.postgresql import PostgreSQLDatabase
 
-        _database_instance = PostgreSQLDatabase(settings.database_url)
+        _database_instance = PostgreSQLDatabase(settings.database_url, echo=settings.DB_ECHO)
     else:
         from app.core.database.sqlite import SQLiteDatabase
 
-        _database_instance = SQLiteDatabase(settings.database_url)
+        _database_instance = SQLiteDatabase(settings.database_url, echo=settings.DB_ECHO)
 
     await _database_instance.connect()
     return _database_instance

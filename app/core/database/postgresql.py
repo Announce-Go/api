@@ -11,11 +11,11 @@ from app.models.base import Base
 class PostgreSQLDatabase(AbstractDatabase):
     """PostgreSQL 데이터베이스"""
 
-    def __init__(self, database_url: str):
+    def __init__(self, database_url: str, echo: bool = False):
         self._database_url = database_url
         self._engine = create_async_engine(
             database_url,
-            echo=False,
+            echo=echo,
             pool_pre_ping=True,
             pool_size=10,
             max_overflow=20,

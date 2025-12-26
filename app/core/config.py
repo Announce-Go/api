@@ -40,6 +40,7 @@ class Settings(BaseSettings):
 
     # === Database ===
     DB_TYPE: DatabaseType = DatabaseType.SQLITE
+    DB_ECHO: bool = True  # SQL 쿼리 로깅
 
     # PostgreSQL
     POSTGRES_HOST: str = "localhost"
