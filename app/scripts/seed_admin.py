@@ -58,7 +58,6 @@ async def seed_admin() -> None:
             name=settings.ADMIN_NAME,
             role=UserRole.ADMIN,
             approval_status=ApprovalStatus.APPROVED,
-            is_active=True,
         )
 
         await user_repo.create(admin)

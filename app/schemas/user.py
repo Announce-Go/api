@@ -31,7 +31,6 @@ class UserResponse(BaseModel):
     company_name: Optional[str]
     role: UserRole
     approval_status: ApprovalStatus
-    is_active: bool
     created_at: datetime
     updated_at: datetime
 

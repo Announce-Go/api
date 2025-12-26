@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List, Optional
 
-from app.models.user import User
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
+
+from app.models.user import ApprovalStatus, User, UserRole
 
 
 class UserRepository:
@@ -48,3 +51,44 @@ class UserRepository:
         stmt = select(User.id).where(User.email == email)
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none() is not None
+
+    async def get_pending_users(
+        self,
+        role: Optional[UserRole] = None,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> List[User]:
+        """승인 대기 중인 사용자 목록 (advertiser/agency 포함)"""
+        stmt = (
+            select(User)
+            .options(joinedload(User.advertiser), joinedload(User.agency))
+            .where(User.approval_status == ApprovalStatus.PENDING)
+        )
+
+        if role:
+            stmt = stmt.where(User.role == role)
+
+        stmt = stmt.order_by(User.created_at.desc()).offset(skip).limit(limit)
+        result = await self._session.execute(stmt)
+        return list(result.scalars().unique().all())
+
+    async def count_pending_users(
+        self,
+        role: Optional[UserRole] = None,
+    ) -> int:
+        """승인 대기 중인 사용자 수"""
+        stmt = select(func.count(User.id)).where(
+            User.approval_status == ApprovalStatus.PENDING
+        )
+
+        if role:
+            stmt = stmt.where(User.role == role)
+
+        result = await self._session.execute(stmt)
+        return result.scalar_one()
+
+    async def update(self, user: User) -> User:
+        """사용자 업데이트"""
+        await self._session.flush()
+        await self._session.refresh(user)
+        return user

@@ -72,6 +72,21 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str = "admin@example.com"
     ADMIN_NAME: str = "관리자"
 
+    # === File Upload ===
+    UPLOAD_DIR: str = "./uploads"
+    MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
+    ALLOWED_FILE_TYPES: list = [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "application/pdf",
+    ]
+
+    # === Storage ===
+    STORAGE_TYPE: str = "local"  # local, s3
+    S3_BUCKET: str = ""
+    S3_REGION: str = "ap-northeast-2"
+
     @property
     def database_url(self) -> str:
         """비동기 DB URL"""

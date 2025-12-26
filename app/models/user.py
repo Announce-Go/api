@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import Boolean, Enum as SQLEnum, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Enum as SQLEnum, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
+
+if TYPE_CHECKING:
+    from app.models.advertiser import Advertiser
+    from app.models.agency import Agency
 
 
 class UserRole(str, Enum):
@@ -63,7 +67,14 @@ class User(Base, TimestampMixin):
         nullable=False,
         default=ApprovalStatus.PENDING,
     )
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+    # Relationships
+    advertiser: Mapped[Optional["Advertiser"]] = relationship(
+        "Advertiser", back_populates="user", uselist=False
+    )
+    agency: Mapped[Optional["Agency"]] = relationship(
+        "Agency", back_populates="user", uselist=False
+    )
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, login_id={self.login_id}, role={self.role})>"

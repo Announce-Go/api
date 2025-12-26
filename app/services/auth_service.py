@@ -48,11 +48,11 @@ class AuthService:
         # 1. 사용자 조회
         user = await self._user_repo.get_by_login_id(request.login_id)
         if user is None:
-            raise ValueError("아이디 또는 비밀번호가 올바르지 않습니다.")
+            raise ValueError("아이디가 올바르지 않습니다.")
 
         # 2. 비밀번호 검증
         if not verify_password(request.password, user.password_hash):
-            raise ValueError("아이디 또는 비밀번호가 올바르지 않습니다.")
+            raise ValueError("비밀번호가 올바르지 않습니다.")
 
         # 3. 승인 상태 확인 (admin은 제외)
         if user.role != UserRole.ADMIN and user.approval_status != ApprovalStatus.APPROVED:
@@ -60,11 +60,7 @@ class AuthService:
                 raise PermissionError("승인 대기 중인 계정입니다.")
             raise PermissionError("승인이 거절된 계정입니다.")
 
-        # 4. 활성 상태 확인
-        if not user.is_active:
-            raise PermissionError("비활성화된 계정입니다.")
-
-        # 5. 세션 생성
+        # 4. 세션 생성
         session_id = generate_session_id()
         session_data = {
             "user_id": user.id,

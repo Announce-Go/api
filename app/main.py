@@ -7,7 +7,8 @@ from fastapi import FastAPI
 from app.core.config import get_settings
 from app.core.dependencies import init_dependencies
 from app.core.factory import close_all, get_database
-from app.routers import auth_router
+from app.core.openapi import setup_openapi
+from app.routers import admin_router, auth_router, files_router, signup_router
 
 
 @asynccontextmanager
@@ -40,10 +41,18 @@ app = FastAPI(
     description="광고 성과 트래킹 서비스 API",
     version="0.1.0",
     lifespan=lifespan,
+    docs_url=None,  # 기본 Swagger UI 비활성화
+    redoc_url=None,  # ReDoc 비활성화
 )
 
 # 라우터 등록
 app.include_router(auth_router, prefix="/api/v1")
+app.include_router(signup_router, prefix="/api/v1")
+app.include_router(files_router, prefix="/api/v1")
+app.include_router(admin_router, prefix="/api/v1")
+
+# OpenAPI 그룹별 문서 설정
+setup_openapi(app)
 
 
 @app.get("/health")

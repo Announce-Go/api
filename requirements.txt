@@ -12,6 +12,9 @@ aiosqlite>=0.19.0
 # Session Store
 redis>=5.0.0
 
+# File Storage
+aiofiles>=23.0.0
+
 # Security
 passlib[bcrypt]>=1.7.4
 bcrypt==4.3.0
