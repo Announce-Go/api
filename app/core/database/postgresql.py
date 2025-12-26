@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.core.interfaces.database import AbstractDatabase
+from app.core.database.database import AbstractDatabase
 from app.models.base import Base
 
 

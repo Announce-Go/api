@@ -17,7 +17,7 @@ from app.services.auth_service import AuthService
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
-    from app.core.interfaces.session_store import AbstractSessionStore
+    from app.core.session.session_store import AbstractSessionStore
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])

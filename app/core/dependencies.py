@@ -4,14 +4,14 @@ from typing import TYPE_CHECKING, Any, AsyncGenerator, Dict, Optional
 
 from fastapi import Cookie, Depends, HTTPException, status
 
-from app.core.config import Settings, get_settings
+from app.core.config import Settings
 from app.core.factory import get_database, get_session_store
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
-    from app.core.interfaces.database import AbstractDatabase
-    from app.core.interfaces.session_store import AbstractSessionStore
+    from app.core.database.database import AbstractDatabase
+    from app.core.session.session_store import AbstractSessionStore
 
 
 # 싱글턴 인스턴스 참조

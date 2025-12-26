@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
-from app.core.interfaces.session_store import AbstractSessionStore
+from app.core.session.session_store import AbstractSessionStore
 
 
 @dataclass

@@ -6,7 +6,7 @@ from typing import Any, Optional
 
 import redis.asyncio as redis
 
-from app.core.interfaces.session_store import AbstractSessionStore
+from app.core.session.session_store import AbstractSessionStore
 
 
 class RedisSessionStore(AbstractSessionStore):

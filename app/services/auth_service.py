@@ -5,9 +5,9 @@ from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
-from app.core.interfaces.session_store import AbstractSessionStore
+from app.core.session.session_store import AbstractSessionStore
 from app.core.security import generate_session_id, verify_password
-from app.models.user import ApprovalStatus, User, UserRole
+from app.models.user import ApprovalStatus, UserRole
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import (
     LoginRequest,

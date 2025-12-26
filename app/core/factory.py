@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import timedelta
 
 from app.core.config import DatabaseType, SessionStoreType, Settings
-from app.core.interfaces.database import AbstractDatabase
-from app.core.interfaces.session_store import AbstractSessionStore
+from app.core.database.database import AbstractDatabase
+from app.core.session.session_store import AbstractSessionStore
 
 
 # 싱글턴 인스턴스 캐시
