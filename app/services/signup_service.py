@@ -57,8 +57,9 @@ class SignupService:
         user = await self._user_repo.create(user)
 
         # 3. 광고주 프로필 생성
+        # Note: advertiser.id = user.id
         advertiser = Advertiser(
-            user_id=user.id,
+            id=user.id,
             business_license_file_id=request.business_license_file_id,
             logo_file_id=request.logo_file_id,
         )
@@ -95,8 +96,9 @@ class SignupService:
         user = await self._user_repo.create(user)
 
         # 3. 업체 프로필 생성
+        # Note: agency.id = user.id
         agency = Agency(
-            user_id=user.id,
+            id=user.id,
             categories=request.categories,
         )
         await self._agency_repo.create(agency)

@@ -82,7 +82,8 @@ class AdminMemberService:
 
         # 업체인 경우 광고주 매핑
         if user.role == UserRole.AGENCY and advertiser_ids:
-            agency = await self._agency_repo.get_by_user_id(user.id)
+            # Note: agency.id = user.id 이므로 get_by_id 사용
+            agency = await self._agency_repo.get_by_id(user.id)
             if agency:
                 # 유효한 광고주만 매핑
                 for advertiser_id in advertiser_ids:

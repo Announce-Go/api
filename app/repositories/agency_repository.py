@@ -17,18 +17,15 @@ class AgencyRepository:
         self._session = session
 
     async def get_by_id(self, agency_id: int) -> Agency | None:
-        """ID로 대행사 조회 (User 포함)"""
+        """ID로 대행사 조회 (User 포함)
+
+        Note: agency.id = user.id 이므로 get_by_user_id와 동일
+        """
         stmt = (
             select(Agency)
             .options(joinedload(Agency.user))
             .where(Agency.id == agency_id)
         )
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
-
-    async def get_by_user_id(self, user_id: int) -> Agency | None:
-        """User ID로 대행사 조회"""
-        stmt = select(Agency).where(Agency.user_id == user_id)
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -78,8 +75,18 @@ class AgencyRepository:
         return result.scalar_one()
 
     async def create(self, agency: Agency) -> Agency:
-        """대행사 생성"""
+        """대행사 생성
+
+        Note: agency.id는 반드시 user.id와 동일한 값으로 설정해야 함
+        """
         self._session.add(agency)
         await self._session.flush()
         await self._session.refresh(agency)
         return agency
+
+    async def delete(self, agency_id: int) -> None:
+        """대행사 삭제"""
+        agency = await self.get_by_id(agency_id)
+        if agency:
+            await self._session.delete(agency)
+            await self._session.flush()

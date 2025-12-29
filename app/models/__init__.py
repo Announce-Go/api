@@ -4,6 +4,7 @@ from app.models.file import File, FileType
 from app.models.advertiser import Advertiser
 from app.models.agency import Agency, AgencyCategory
 from app.models.agency_advertiser_mapping import AgencyAdvertiserMapping
+from app.models.tracking import RankHistory, RankTracking, RankType, TrackingStatus
 
 __all__ = [
     "Base",
@@ -17,4 +18,8 @@ __all__ = [
     "Agency",
     "AgencyCategory",
     "AgencyAdvertiserMapping",
+    "RankTracking",
+    "RankHistory",
+    "RankType",
+    "TrackingStatus",
 ]

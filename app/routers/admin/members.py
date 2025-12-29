@@ -169,9 +169,9 @@ async def list_advertisers(
 
     items = []
     for adv in advertisers:
+        # Note: adv.id = user.id 이므로 user_id 필드 제거됨
         item = AdvertiserListItem(
             id=adv.id,
-            user_id=adv.user_id,
             login_id=adv.user.login_id,
             email=adv.user.email,
             name=adv.user.name,
@@ -213,18 +213,18 @@ async def get_advertiser_detail(
     mapped_agencies = []
     for mapping in mappings:
         if mapping.agency and mapping.agency.user:
+            # Note: 매핑 테이블의 id가 제거되어 agency_id만 사용
             mapped_agencies.append(
                 MappedAgencyItem(
-                    id=mapping.id,
                     agency_id=mapping.agency_id,
                     agency_name=mapping.agency.user.name,
                     agency_company_name=mapping.agency.user.company_name,
                 )
             )
 
+    # Note: advertiser.id = user.id 이므로 user_id 필드 제거됨
     return AdvertiserDetailResponse(
         id=advertiser.id,
-        user_id=advertiser.user_id,
         login_id=advertiser.user.login_id,
         email=advertiser.user.email,
         name=advertiser.user.name,
@@ -268,9 +268,9 @@ async def list_agencies(
 
     items = []
     for agency in agencies:
+        # Note: agency.id = user.id 이므로 user_id 필드 제거됨
         item = AgencyListItem(
             id=agency.id,
-            user_id=agency.user_id,
             login_id=agency.user.login_id,
             email=agency.user.email,
             name=agency.user.name,
@@ -305,18 +305,18 @@ async def get_agency_detail(
     mapped_advertisers = []
     for mapping in mappings:
         if mapping.advertiser and mapping.advertiser.user:
+            # Note: 매핑 테이블의 id가 제거되어 advertiser_id만 사용
             mapped_advertisers.append(
                 MappedAdvertiserItem(
-                    id=mapping.id,
                     advertiser_id=mapping.advertiser_id,
                     advertiser_name=mapping.advertiser.user.name,
                     advertiser_company_name=mapping.advertiser.user.company_name,
                 )
             )
 
+    # Note: agency.id = user.id 이므로 user_id 필드 제거됨
     return AgencyDetailResponse(
         id=agency.id,
-        user_id=agency.user_id,
         login_id=agency.user.login_id,
         email=agency.user.email,
         name=agency.user.name,

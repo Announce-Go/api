@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import JSON, ForeignKey
+from sqlalchemy import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -29,26 +29,26 @@ class Agency(Base, TimestampMixin):
 
     __tablename__ = "agencies"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-
-    # 사용자 연결 (1:1)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"),
-        unique=True,
-        nullable=False,
-        index=True,
-    )
+    # PK = user.id (auto-increment 없음)
+    id: Mapped[int] = mapped_column(primary_key=True)  # references: users.id
 
     # 담당 카테고리 (JSON 배열)
     categories: Mapped[List[str]] = mapped_column(JSON, default=list)
 
-    # Relationships
-    user: Mapped["User"] = relationship("User", back_populates="agency")
+    # Relationships (FK 제약 없이 primaryjoin으로 연결)
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="agency",
+        primaryjoin="Agency.id == User.id",
+        foreign_keys="Agency.id",
+    )
     advertiser_mappings: Mapped[List["AgencyAdvertiserMapping"]] = relationship(
         "AgencyAdvertiserMapping",
         back_populates="agency",
         cascade="all, delete-orphan",
+        primaryjoin="Agency.id == AgencyAdvertiserMapping.agency_id",
+        foreign_keys="AgencyAdvertiserMapping.agency_id",
     )
 
     def __repr__(self) -> str:
-        return f"<Agency(id={self.id}, user_id={self.user_id})>"
+        return f"<Agency(id={self.id})>"

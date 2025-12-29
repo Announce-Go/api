@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -17,34 +16,34 @@ class Advertiser(Base, TimestampMixin):
 
     __tablename__ = "advertisers"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    # PK = user.id (auto-increment 없음)
+    id: Mapped[int] = mapped_column(primary_key=True)  # references: users.id
 
-    # 사용자 연결 (1:1)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"),
-        unique=True,
-        nullable=False,
-        index=True,
-    )
-
-    # 파일 연결
+    # 파일 연결 (FK 제약 없음, 애플리케이션 레벨에서 관리)
     business_license_file_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("files.id", ondelete="SET NULL"),
         nullable=True,
-    )
+    )  # references: files.id
     logo_file_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("files.id", ondelete="SET NULL"),
         nullable=True,
-    )
+    )  # references: files.id
 
-    # Relationships
-    user: Mapped["User"] = relationship("User", back_populates="advertiser")
+    # Relationships (FK 제약 없이 primaryjoin으로 연결)
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="advertiser",
+        primaryjoin="Advertiser.id == User.id",
+        foreign_keys="Advertiser.id",
+    )
     business_license_file: Mapped[Optional["File"]] = relationship(
-        "File", foreign_keys=[business_license_file_id]
+        "File",
+        primaryjoin="Advertiser.business_license_file_id == File.id",
+        foreign_keys="Advertiser.business_license_file_id",
     )
     logo_file: Mapped[Optional["File"]] = relationship(
-        "File", foreign_keys=[logo_file_id]
+        "File",
+        primaryjoin="Advertiser.logo_file_id == File.id",
+        foreign_keys="Advertiser.logo_file_id",
     )
 
     def __repr__(self) -> str:
-        return f"<Advertiser(id={self.id}, user_id={self.user_id})>"
+        return f"<Advertiser(id={self.id})>"

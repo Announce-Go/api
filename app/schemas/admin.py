@@ -78,10 +78,12 @@ class ApprovalResponse(BaseModel):
 
 
 class AdvertiserListItem(BaseModel):
-    """광고주 목록 항목"""
+    """광고주 목록 항목
 
-    id: int
-    user_id: int
+    Note: id = user_id 이므로 user_id 필드 제거됨
+    """
+
+    id: int  # advertiser.id = user.id
     login_id: str
     email: str
     name: str
@@ -100,19 +102,23 @@ class AdvertiserListResponse(BaseModel):
 
 
 class MappedAgencyItem(BaseModel):
-    """매핑된 업체 정보"""
+    """매핑된 업체 정보
 
-    id: int
-    agency_id: int
+    Note: 매핑 테이블의 id가 제거되어 agency_id만 사용
+    """
+
+    agency_id: int  # agency.id = user.id
     agency_name: str
     agency_company_name: Optional[str]
 
 
 class AdvertiserDetailResponse(BaseModel):
-    """광고주 상세 응답"""
+    """광고주 상세 응답
 
-    id: int
-    user_id: int
+    Note: id = user_id 이므로 user_id 필드 제거됨
+    """
+
+    id: int  # advertiser.id = user.id
     login_id: str
     email: str
     name: str
@@ -131,10 +137,12 @@ class AdvertiserDetailResponse(BaseModel):
 
 
 class AgencyListItem(BaseModel):
-    """업체 목록 항목"""
+    """업체 목록 항목
 
-    id: int
-    user_id: int
+    Note: id = user_id 이므로 user_id 필드 제거됨
+    """
+
+    id: int  # agency.id = user.id
     login_id: str
     email: str
     name: str
@@ -152,19 +160,23 @@ class AgencyListResponse(BaseModel):
 
 
 class MappedAdvertiserItem(BaseModel):
-    """매핑된 광고주 정보"""
+    """매핑된 광고주 정보
 
-    id: int
-    advertiser_id: int
+    Note: 매핑 테이블의 id가 제거되어 advertiser_id만 사용
+    """
+
+    advertiser_id: int  # advertiser.id = user.id
     advertiser_name: str
     advertiser_company_name: Optional[str]
 
 
 class AgencyDetailResponse(BaseModel):
-    """업체 상세 응답"""
+    """업체 상세 응답
 
-    id: int
-    user_id: int
+    Note: id = user_id 이므로 user_id 필드 제거됨
+    """
+
+    id: int  # agency.id = user.id
     login_id: str
     email: str
     name: str

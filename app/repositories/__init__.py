@@ -5,6 +5,7 @@ from app.repositories.agency_repository import AgencyRepository
 from app.repositories.agency_advertiser_mapping_repository import (
     AgencyAdvertiserMappingRepository,
 )
+from app.repositories.tracking import RankHistoryRepository, RankTrackingRepository
 
 __all__ = [
     "UserRepository",
@@ -12,4 +13,6 @@ __all__ = [
     "AdvertiserRepository",
     "AgencyRepository",
     "AgencyAdvertiserMappingRepository",
+    "RankTrackingRepository",
+    "RankHistoryRepository",
 ]

@@ -17,7 +17,10 @@ class AdvertiserRepository:
         self._session = session
 
     async def get_by_id(self, advertiser_id: int) -> Advertiser | None:
-        """ID로 광고주 조회 (User 포함)"""
+        """ID로 광고주 조회 (User 포함)
+
+        Note: advertiser.id = user.id 이므로 get_by_user_id와 동일
+        """
         stmt = (
             select(Advertiser)
             .options(
@@ -27,12 +30,6 @@ class AdvertiserRepository:
             )
             .where(Advertiser.id == advertiser_id)
         )
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
-
-    async def get_by_user_id(self, user_id: int) -> Advertiser | None:
-        """User ID로 광고주 조회"""
-        stmt = select(Advertiser).where(Advertiser.user_id == user_id)
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -90,8 +87,18 @@ class AdvertiserRepository:
         return result.scalar_one()
 
     async def create(self, advertiser: Advertiser) -> Advertiser:
-        """광고주 생성"""
+        """광고주 생성
+
+        Note: advertiser.id는 반드시 user.id와 동일한 값으로 설정해야 함
+        """
         self._session.add(advertiser)
         await self._session.flush()
         await self._session.refresh(advertiser)
         return advertiser
+
+    async def delete(self, advertiser_id: int) -> None:
+        """광고주 삭제"""
+        advertiser = await self.get_by_id(advertiser_id)
+        if advertiser:
+            await self._session.delete(advertiser)
+            await self._session.flush()

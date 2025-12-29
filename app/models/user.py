@@ -68,12 +68,21 @@ class User(Base, TimestampMixin):
         default=ApprovalStatus.PENDING,
     )
 
-    # Relationships
+    # Relationships (FK 제약 없이 primaryjoin으로 연결)
+    # advertiser.id = user.id, agency.id = user.id
     advertiser: Mapped[Optional["Advertiser"]] = relationship(
-        "Advertiser", back_populates="user", uselist=False
+        "Advertiser",
+        back_populates="user",
+        uselist=False,
+        primaryjoin="User.id == Advertiser.id",
+        foreign_keys="Advertiser.id",
     )
     agency: Mapped[Optional["Agency"]] = relationship(
-        "Agency", back_populates="user", uselist=False
+        "Agency",
+        back_populates="user",
+        uselist=False,
+        primaryjoin="User.id == Agency.id",
+        foreign_keys="Agency.id",
     )
 
     def __repr__(self) -> str:
