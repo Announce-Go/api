@@ -40,6 +40,30 @@ from app.schemas.tracking import (
     TrackingListResponse,
     TrackingStopResponse,
 )
+from app.schemas.dashboard import (
+    AdminDashboardResponse,
+    RecentSignupRequest,
+    AgencyDashboardResponse,
+    RecentTracking,
+    AdvertiserDashboardResponse,
+)
+from app.schemas.work_records import (
+    DailyCount,
+    CalendarListResponse,
+    BlogPostingCreateRequest,
+    BlogPostingUpdateRequest,
+    BlogPostingListItem,
+    BlogPostingListResponse,
+    BlogPostingDetailResponse,
+    PressArticleCreateRequest,
+    PressArticleUpdateRequest,
+    PressArticleListItem,
+    PressArticleCalendarResponse,
+    CafeInfiltrationCreateRequest,
+    CafeInfiltrationUpdateRequest,
+    CafeInfiltrationListItem,
+    CafeInfiltrationCalendarResponse,
+)
 
 __all__ = [
     # Auth
@@ -85,4 +109,26 @@ __all__ = [
     "TrackingListItem",
     "TrackingListResponse",
     "TrackingStopResponse",
+    # Dashboard
+    "AdminDashboardResponse",
+    "RecentSignupRequest",
+    "AgencyDashboardResponse",
+    "RecentTracking",
+    "AdvertiserDashboardResponse",
+    # WorkRecords
+    "DailyCount",
+    "CalendarListResponse",
+    "BlogPostingCreateRequest",
+    "BlogPostingUpdateRequest",
+    "BlogPostingListItem",
+    "BlogPostingListResponse",
+    "BlogPostingDetailResponse",
+    "PressArticleCreateRequest",
+    "PressArticleUpdateRequest",
+    "PressArticleListItem",
+    "PressArticleCalendarResponse",
+    "CafeInfiltrationCreateRequest",
+    "CafeInfiltrationUpdateRequest",
+    "CafeInfiltrationListItem",
+    "CafeInfiltrationCalendarResponse",
 ]

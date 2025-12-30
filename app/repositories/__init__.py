@@ -6,6 +6,11 @@ from app.repositories.agency_advertiser_mapping_repository import (
     AgencyAdvertiserMappingRepository,
 )
 from app.repositories.tracking import RankHistoryRepository, RankTrackingRepository
+from app.repositories.work_records import (
+    BlogPostingRepository,
+    CafeInfiltrationRepository,
+    PressArticleRepository,
+)
 
 __all__ = [
     "UserRepository",
@@ -15,4 +20,7 @@ __all__ = [
     "AgencyAdvertiserMappingRepository",
     "RankTrackingRepository",
     "RankHistoryRepository",
+    "BlogPostingRepository",
+    "PressArticleRepository",
+    "CafeInfiltrationRepository",
 ]
