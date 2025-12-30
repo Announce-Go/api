@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-router = APIRouter(prefix="/admin/press", tags=["admin-press"])
+router = APIRouter(prefix="/press", tags=["admin-press"])
 
 
 def get_press_article_service(

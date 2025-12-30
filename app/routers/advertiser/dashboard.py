@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-router = APIRouter(prefix="/advertiser/dashboard", tags=["advertiser-dashboard"])
+router = APIRouter(prefix="/dashboard", tags=["advertiser-dashboard"])
 
 
 def get_dashboard_service(

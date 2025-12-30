@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-router = APIRouter(prefix="/admin/cafe-infiltration", tags=["admin-cafe-infiltration"])
+router = APIRouter(prefix="/cafe-infiltration", tags=["admin-cafe-infiltration"])
 
 
 def get_cafe_infiltration_service(

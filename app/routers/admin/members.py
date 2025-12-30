@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+router = APIRouter(prefix="", tags=["admin"])
 
 
 def get_admin_service(

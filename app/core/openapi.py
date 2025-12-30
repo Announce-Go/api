@@ -25,36 +25,10 @@ class OpenAPIGroup:
 def get_openapi_groups() -> list[OpenAPIGroup]:
     """OpenAPI 그룹 목록 반환"""
     from app.routers import (
-        auth_router,
-        signup_router,
-        files_router,
-        # Admin
-        admin_members_router,
-        admin_place_rank_router,
-        admin_cafe_rank_router,
-        admin_blog_rank_router,
-        admin_dashboard_router,
-        admin_blog_posting_router,
-        admin_press_router,
-        admin_cafe_infiltration_router,
-        # Agency
-        agency_common_router,
-        agency_place_rank_router,
-        agency_cafe_rank_router,
-        agency_blog_rank_router,
-        agency_dashboard_router,
-        agency_blog_posting_router,
-        agency_press_router,
-        agency_cafe_infiltration_router,
-        # Advertiser
-        advertiser_common_router,
-        advertiser_place_rank_router,
-        advertiser_cafe_rank_router,
-        advertiser_blog_rank_router,
-        advertiser_dashboard_router,
-        advertiser_blog_posting_router,
-        advertiser_press_router,
-        advertiser_cafe_infiltration_router,
+        common_router,
+        admin_router,
+        agency_router,
+        advertiser_router,
     )
 
     return [
@@ -63,9 +37,7 @@ def get_openapi_groups() -> list[OpenAPIGroup]:
             display_name="Common (공통)",
             description="공통 API (인증, 회원가입, 파일, 헬스체크)",
             routers=[
-                (auth_router, "/api/v1"),
-                (signup_router, "/api/v1"),
-                (files_router, "/api/v1"),
+                (common_router, "/api/v1"),
             ],
         ),
         OpenAPIGroup(
@@ -73,14 +45,7 @@ def get_openapi_groups() -> list[OpenAPIGroup]:
             display_name="Admin (관리자)",
             description="관리자용 API (회원관리, 순위추적, 대시보드, 작업기록 관리)",
             routers=[
-                (admin_members_router, "/api/v1"),
-                (admin_place_rank_router, "/api/v1"),
-                (admin_cafe_rank_router, "/api/v1"),
-                (admin_blog_rank_router, "/api/v1"),
-                (admin_dashboard_router, "/api/v1"),
-                (admin_blog_posting_router, "/api/v1"),
-                (admin_press_router, "/api/v1"),
-                (admin_cafe_infiltration_router, "/api/v1"),
+                (admin_router, "/api/v1/admin"),
             ],
         ),
         OpenAPIGroup(
@@ -88,14 +53,7 @@ def get_openapi_groups() -> list[OpenAPIGroup]:
             display_name="Agency (광고업체)",
             description="광고 업체용 API (순위추적 등록/조회, 대시보드, 작업기록)",
             routers=[
-                (agency_common_router, "/api/v1"),
-                (agency_place_rank_router, "/api/v1"),
-                (agency_cafe_rank_router, "/api/v1"),
-                (agency_blog_rank_router, "/api/v1"),
-                (agency_dashboard_router, "/api/v1"),
-                (agency_blog_posting_router, "/api/v1"),
-                (agency_press_router, "/api/v1"),
-                (agency_cafe_infiltration_router, "/api/v1"),
+                (agency_router, "/api/v1/agency"),
             ],
         ),
         OpenAPIGroup(
@@ -103,14 +61,7 @@ def get_openapi_groups() -> list[OpenAPIGroup]:
             display_name="Advertiser (광고주)",
             description="광고주용 API (순위추적 조회, 대시보드, 작업기록)",
             routers=[
-                (advertiser_common_router, "/api/v1"),
-                (advertiser_place_rank_router, "/api/v1"),
-                (advertiser_cafe_rank_router, "/api/v1"),
-                (advertiser_blog_rank_router, "/api/v1"),
-                (advertiser_dashboard_router, "/api/v1"),
-                (advertiser_blog_posting_router, "/api/v1"),
-                (advertiser_press_router, "/api/v1"),
-                (advertiser_cafe_infiltration_router, "/api/v1"),
+                (advertiser_router, "/api/v1/advertiser"),
             ],
         ),
     ]

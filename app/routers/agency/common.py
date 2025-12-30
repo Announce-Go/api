@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-router = APIRouter(prefix="/agency", tags=["agency-common"])
+router = APIRouter(prefix="", tags=["agency-common"])
 
 
 async def get_agency_id(

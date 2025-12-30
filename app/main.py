@@ -9,36 +9,10 @@ from app.core.dependencies import init_dependencies
 from app.core.factory import close_all, get_database
 from app.core.openapi import setup_openapi
 from app.routers import (
-    auth_router,
-    signup_router,
-    files_router,
-    # Admin
-    admin_members_router,
-    admin_place_rank_router,
-    admin_cafe_rank_router,
-    admin_blog_rank_router,
-    admin_dashboard_router,
-    admin_blog_posting_router,
-    admin_press_router,
-    admin_cafe_infiltration_router,
-    # Agency
-    agency_common_router,
-    agency_place_rank_router,
-    agency_cafe_rank_router,
-    agency_blog_rank_router,
-    agency_dashboard_router,
-    agency_blog_posting_router,
-    agency_press_router,
-    agency_cafe_infiltration_router,
-    # Advertiser
-    advertiser_common_router,
-    advertiser_place_rank_router,
-    advertiser_cafe_rank_router,
-    advertiser_blog_rank_router,
-    advertiser_dashboard_router,
-    advertiser_blog_posting_router,
-    advertiser_press_router,
-    advertiser_cafe_infiltration_router,
+    common_router,
+    admin_router,
+    agency_router,
+    advertiser_router,
 )
 
 
@@ -76,40 +50,11 @@ app = FastAPI(
     redoc_url=None,  # ReDoc 비활성화
 )
 
-# 라우터 등록 - Common
-app.include_router(auth_router, prefix="/api/v1")
-app.include_router(signup_router, prefix="/api/v1")
-app.include_router(files_router, prefix="/api/v1")
-
-# 라우터 등록 - Admin
-app.include_router(admin_members_router, prefix="/api/v1")
-app.include_router(admin_place_rank_router, prefix="/api/v1")
-app.include_router(admin_cafe_rank_router, prefix="/api/v1")
-app.include_router(admin_blog_rank_router, prefix="/api/v1")
-app.include_router(admin_dashboard_router, prefix="/api/v1")
-app.include_router(admin_blog_posting_router, prefix="/api/v1")
-app.include_router(admin_press_router, prefix="/api/v1")
-app.include_router(admin_cafe_infiltration_router, prefix="/api/v1")
-
-# 라우터 등록 - Agency
-app.include_router(agency_common_router, prefix="/api/v1")
-app.include_router(agency_place_rank_router, prefix="/api/v1")
-app.include_router(agency_cafe_rank_router, prefix="/api/v1")
-app.include_router(agency_blog_rank_router, prefix="/api/v1")
-app.include_router(agency_dashboard_router, prefix="/api/v1")
-app.include_router(agency_blog_posting_router, prefix="/api/v1")
-app.include_router(agency_press_router, prefix="/api/v1")
-app.include_router(agency_cafe_infiltration_router, prefix="/api/v1")
-
-# 라우터 등록 - Advertiser
-app.include_router(advertiser_common_router, prefix="/api/v1")
-app.include_router(advertiser_place_rank_router, prefix="/api/v1")
-app.include_router(advertiser_cafe_rank_router, prefix="/api/v1")
-app.include_router(advertiser_blog_rank_router, prefix="/api/v1")
-app.include_router(advertiser_dashboard_router, prefix="/api/v1")
-app.include_router(advertiser_blog_posting_router, prefix="/api/v1")
-app.include_router(advertiser_press_router, prefix="/api/v1")
-app.include_router(advertiser_cafe_infiltration_router, prefix="/api/v1")
+# 라우터 등록
+app.include_router(common_router, prefix="/api/v1")
+app.include_router(admin_router, prefix="/api/v1/admin")
+app.include_router(agency_router, prefix="/api/v1/agency")
+app.include_router(advertiser_router, prefix="/api/v1/advertiser")
 
 # OpenAPI 그룹별 문서 설정
 setup_openapi(app)

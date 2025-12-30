@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-router = APIRouter(prefix="/admin/blog-posting", tags=["admin-blog-posting"])
+router = APIRouter(prefix="/blog-posting", tags=["admin-blog-posting"])
 
 
 def get_blog_posting_service(

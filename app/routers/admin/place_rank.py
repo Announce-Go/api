@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-router = APIRouter(prefix="/admin/place-rank", tags=["admin-place-rank"])
+router = APIRouter(prefix="/place-rank", tags=["admin-place-rank"])
 
 
 def get_rank_service(
