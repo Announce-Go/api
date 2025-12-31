@@ -43,6 +43,12 @@ async def login(
     로그인
 
     성공 시 세션 ID를 쿠키에 설정
+
+    Request Body:
+        LoginRequest
+
+    Response:
+        LoginResponse
     """
     try:
         session_id, result = await auth_service.login(request)
@@ -87,6 +93,9 @@ async def logout(
     로그아웃
 
     세션 삭제 및 쿠키 제거
+
+    Response:
+        LogoutResponse
     """
     if session_id:
         await auth_service.logout(session_id)
@@ -105,5 +114,8 @@ async def get_session(
     현재 세션 확인
 
     쿠키의 세션 ID로 인증 상태 확인
+
+    Response:
+        SessionResponse
     """
     return await auth_service.get_session(session_id)

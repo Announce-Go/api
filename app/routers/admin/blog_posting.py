@@ -32,7 +32,11 @@ async def list_blog_postings(
     page_size: int = Query(20, ge=1, le=1000, description="페이지당 항목 수"),
     service: BlogPostingService = Depends(get_blog_posting_service),
 ) -> BlogPostingListResponse:
-    """블로그 포스팅 목록 (전체 조회)"""
+    """블로그 포스팅 목록 (전체 조회)
+
+    Response:
+        BlogPostingListResponse
+    """
     return await service.get_list(
         keyword=keyword,
         page=page,

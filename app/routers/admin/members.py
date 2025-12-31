@@ -53,7 +53,11 @@ async def list_signup_requests(
     page_size: int = Query(20, ge=1, le=1000, description="페이지당 항목 수"),
     service: AdminMemberService = Depends(get_admin_service),
 ) -> SignupRequestListResponse:
-    """회원가입 승인 요청 목록 (필터, 검색)"""
+    """회원가입 승인 요청 목록 (필터, 검색)
+
+    Response:
+        SignupRequestListResponse
+    """
     users, total = await service.get_pending_signups(role, page, page_size)
     pagination = PaginationMeta.create(total=total, page=page, page_size=page_size)
     return SignupRequestListResponse(
@@ -72,7 +76,11 @@ async def get_signup_request_detail(
     user_id: int,
     service: AdminMemberService = Depends(get_admin_service),
 ) -> SignupRequestDetailResponse:
-    """회원가입 승인 요청 상세"""
+    """회원가입 승인 요청 상세
+
+    Response:
+        SignupRequestDetailResponse
+    """
     user = await service.get_signup_request_detail(user_id)
 
     if not user:
@@ -118,7 +126,14 @@ async def approve_signup(
     request: ApproveRequest,
     service: AdminMemberService = Depends(get_admin_service),
 ) -> ApprovalResponse:
-    """회원가입 승인 (업체인 경우 광고주 매핑 포함)"""
+    """회원가입 승인 (업체인 경우 광고주 매핑 포함)
+
+    Request Body:
+        ApproveRequest
+
+    Response:
+        ApprovalResponse
+    """
     try:
         await service.approve_signup(user_id, request.advertiser_ids)
         return ApprovalResponse(success=True, message="승인되었습니다.")
@@ -139,7 +154,14 @@ async def reject_signup(
     request: RejectRequest,
     service: AdminMemberService = Depends(get_admin_service),
 ) -> ApprovalResponse:
-    """회원가입 거절"""
+    """회원가입 거절
+
+    Request Body:
+        RejectRequest
+
+    Response:
+        ApprovalResponse
+    """
     try:
         await service.reject_signup(user_id)
         return ApprovalResponse(success=True, message="거절되었습니다.")
@@ -165,7 +187,11 @@ async def list_advertisers(
     page_size: int = Query(20, ge=1, le=1000, description="페이지당 항목 수"),
     service: AdminMemberService = Depends(get_admin_service),
 ) -> AdvertiserListResponse:
-    """광고주 목록 (검색)"""
+    """광고주 목록 (검색)
+
+    Response:
+        AdvertiserListResponse
+    """
     advertisers, total = await service.get_advertisers(
         approval_status, search, page, page_size
     )
@@ -205,7 +231,11 @@ async def get_advertiser_detail(
     advertiser_id: int,
     service: AdminMemberService = Depends(get_admin_service),
 ) -> AdvertiserDetailResponse:
-    """광고주 상세 및 매핑된 업체 목록"""
+    """광고주 상세 및 매핑된 업체 목록
+
+    Response:
+        AdvertiserDetailResponse
+    """
     advertiser, mappings = await service.get_advertiser_detail(advertiser_id)
 
     if not advertiser:
@@ -265,7 +295,11 @@ async def list_agencies(
     page_size: int = Query(20, ge=1, le=1000, description="페이지당 항목 수"),
     service: AdminMemberService = Depends(get_admin_service),
 ) -> AgencyListResponse:
-    """업체 목록 (검색)"""
+    """업체 목록 (검색)
+
+    Response:
+        AgencyListResponse
+    """
     agencies, total = await service.get_agencies(
         approval_status, search, page, page_size
     )
@@ -298,7 +332,11 @@ async def get_agency_detail(
     agency_id: int,
     service: AdminMemberService = Depends(get_admin_service),
 ) -> AgencyDetailResponse:
-    """업체 상세 및 매핑된 광고주 목록"""
+    """업체 상세 및 매핑된 광고주 목록
+
+    Response:
+        AgencyDetailResponse
+    """
     agency, mappings = await service.get_agency_detail(agency_id)
 
     if not agency:

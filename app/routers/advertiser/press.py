@@ -47,7 +47,11 @@ async def list_press_articles(
     advertiser_id: int = Depends(get_advertiser_id),
     service: PressArticleService = Depends(get_press_article_service),
 ) -> PressArticleCalendarResponse:
-    """언론 기사 목록 (본인만 + dailyCounts)"""
+    """언론 기사 목록 (본인만 + dailyCounts)
+
+    Response:
+        PressArticleCalendarResponse
+    """
     return await service.get_calendar_list_advertiser(
         advertiser_id=advertiser_id,
         year=year,

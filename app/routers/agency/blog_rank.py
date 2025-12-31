@@ -57,7 +57,11 @@ async def get_realtime_rank(
     agency_id: int = Depends(get_agency_id),
     service: RankService = Depends(get_rank_service),
 ) -> RealtimeRankResponse:
-    """블로그 글 실시간 순위 조회 (DB 저장 X)"""
+    """블로그 글 실시간 순위 조회 (DB 저장 X)
+
+    Response:
+        RealtimeRankResponse
+    """
     return await service.get_realtime_rank(RankType.BLOG, keyword, url)
 
 
@@ -74,7 +78,11 @@ async def list_trackings(
     agency_id: int = Depends(get_agency_id),
     service: RankService = Depends(get_rank_service),
 ) -> TrackingListResponse:
-    """블로그 글 순위 추적 목록 (본인 업체만)"""
+    """블로그 글 순위 추적 목록 (본인 업체만)
+
+    Response:
+        TrackingListResponse
+    """
     return await service.get_tracking_list(
         rank_type=RankType.BLOG,
         status=status,
@@ -96,7 +104,14 @@ async def create_tracking(
     agency_id: int = Depends(get_agency_id),
     service: RankService = Depends(get_rank_service),
 ) -> TrackingCreateResponse:
-    """블로그 글 순위 추적 등록"""
+    """블로그 글 순위 추적 등록
+
+    Request Body:
+        TrackingCreateRequest
+
+    Response:
+        TrackingCreateResponse
+    """
     return await service.create_tracking(
         rank_type=RankType.BLOG,
         data=data,
@@ -113,7 +128,11 @@ async def get_tracking_detail(
     agency_id: int = Depends(get_agency_id),
     service: RankService = Depends(get_rank_service),
 ) -> TrackingDetailResponse:
-    """블로그 글 순위 추적 상세 (히스토리 전체 포함)"""
+    """블로그 글 순위 추적 상세 (히스토리 전체 포함)
+
+    Response:
+        TrackingDetailResponse
+    """
     result = await service.get_tracking_detail(
         tracking_id=tracking_id,
         agency_id=agency_id,

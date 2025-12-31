@@ -45,5 +45,9 @@ async def get_dashboard(
     agency_id: int = Depends(get_agency_id),
     service: AgencyDashboardService = Depends(get_dashboard_service),
 ) -> AgencyDashboardResponse:
-    """업체 대시보드 (통계 + 최근 추적 현황 5건)"""
+    """업체 대시보드 (통계 + 최근 추적 현황 5건)
+
+    Response:
+        AgencyDashboardResponse
+    """
     return await service.get_dashboard(agency_id)

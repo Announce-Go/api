@@ -48,7 +48,11 @@ async def list_blog_postings(
     advertiser_id: int = Depends(get_advertiser_id),
     service: BlogPostingService = Depends(get_blog_posting_service),
 ) -> BlogPostingListResponse:
-    """블로그 포스팅 목록 (본인만)"""
+    """블로그 포스팅 목록 (본인만)
+
+    Response:
+        BlogPostingListResponse
+    """
     return await service.get_list(
         advertiser_id=advertiser_id,
         keyword=keyword,

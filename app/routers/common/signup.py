@@ -31,7 +31,11 @@ async def check_id(
     login_id: str,
     service: SignupService = Depends(get_signup_service),
 ) -> IdCheckResponse:
-    """아이디 중복 확인"""
+    """아이디 중복 확인
+
+    Response:
+        IdCheckResponse
+    """
     available = await service.check_id_available(login_id)
     return IdCheckResponse(
         available=available,
@@ -44,7 +48,14 @@ async def signup_advertiser(
     request: AdvertiserSignupRequest,
     service: SignupService = Depends(get_signup_service),
 ) -> SignupResponse:
-    """광고주 회원가입"""
+    """광고주 회원가입
+
+    Request Body:
+        AdvertiserSignupRequest
+
+    Response:
+        SignupResponse
+    """
     try:
         user = await service.register_advertiser(request)
         return SignupResponse(
@@ -64,7 +75,14 @@ async def signup_agency(
     request: AgencySignupRequest,
     service: SignupService = Depends(get_signup_service),
 ) -> SignupResponse:
-    """업체(대행사) 회원가입"""
+    """업체(대행사) 회원가입
+
+    Request Body:
+        AgencySignupRequest
+
+    Response:
+        SignupResponse
+    """
     try:
         user = await service.register_agency(request)
         return SignupResponse(

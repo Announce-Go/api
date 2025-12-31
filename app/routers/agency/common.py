@@ -44,7 +44,11 @@ async def list_mapped_advertisers(
     agency_id: int = Depends(get_agency_id),
     db: AsyncSession = Depends(get_db_session),
 ) -> MappedAdvertiserListResponse:
-    """매핑된 광고주 목록 (추적 등록 시 선택용)"""
+    """매핑된 광고주 목록 (추적 등록 시 선택용)
+
+    Response:
+        MappedAdvertiserListResponse
+    """
     mapping_repo = AgencyAdvertiserMappingRepository(db)
     mappings = await mapping_repo.get_by_agency_id(agency_id)
 

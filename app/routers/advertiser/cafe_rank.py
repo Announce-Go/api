@@ -55,7 +55,11 @@ async def get_realtime_rank(
     advertiser_id: int = Depends(get_advertiser_id),
     service: RankService = Depends(get_rank_service),
 ) -> RealtimeRankResponse:
-    """카페 글 실시간 순위 조회 (DB 저장 X)"""
+    """카페 글 실시간 순위 조회 (DB 저장 X)
+
+    Response:
+        RealtimeRankResponse
+    """
     return await service.get_realtime_rank(RankType.CAFE, keyword, url)
 
 
@@ -71,7 +75,11 @@ async def list_trackings(
     advertiser_id: int = Depends(get_advertiser_id),
     service: RankService = Depends(get_rank_service),
 ) -> TrackingListResponse:
-    """카페 글 순위 추적 목록 (본인 광고주만)"""
+    """카페 글 순위 추적 목록 (본인 광고주만)
+
+    Response:
+        TrackingListResponse
+    """
     return await service.get_tracking_list(
         rank_type=RankType.CAFE,
         status=status,
@@ -91,7 +99,11 @@ async def get_tracking_detail(
     advertiser_id: int = Depends(get_advertiser_id),
     service: RankService = Depends(get_rank_service),
 ) -> TrackingDetailResponse:
-    """카페 글 순위 추적 상세 (히스토리 전체 포함)"""
+    """카페 글 순위 추적 상세 (히스토리 전체 포함)
+
+    Response:
+        TrackingDetailResponse
+    """
     result = await service.get_tracking_detail(
         tracking_id=tracking_id,
         advertiser_id=advertiser_id,

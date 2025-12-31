@@ -47,7 +47,11 @@ async def list_cafe_infiltrations(
     agency_id: int = Depends(get_agency_id),
     service: CafeInfiltrationService = Depends(get_cafe_infiltration_service),
 ) -> CafeInfiltrationCalendarResponse:
-    """카페 침투 목록 (매핑된 광고주만 + dailyCounts)"""
+    """카페 침투 목록 (매핑된 광고주만 + dailyCounts)
+
+    Response:
+        CafeInfiltrationCalendarResponse
+    """
     return await service.get_calendar_list_agency(
         agency_id=agency_id,
         year=year,

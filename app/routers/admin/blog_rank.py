@@ -37,7 +37,11 @@ async def get_realtime_rank(
     url: str = Query(..., description="블로그 글 URL"),
     service: RankService = Depends(get_rank_service),
 ) -> RealtimeRankResponse:
-    """블로그 글 실시간 순위 조회 (DB 저장 X)"""
+    """블로그 글 실시간 순위 조회 (DB 저장 X)
+
+    Response:
+        RealtimeRankResponse
+    """
     return await service.get_realtime_rank(RankType.BLOG, keyword, url)
 
 
@@ -53,7 +57,11 @@ async def list_trackings(
     page_size: int = Query(20, ge=1, le=1000, description="페이지당 항목 수"),
     service: RankService = Depends(get_rank_service),
 ) -> TrackingListResponse:
-    """블로그 글 순위 추적 목록 (전체)"""
+    """블로그 글 순위 추적 목록 (전체)
+
+    Response:
+        TrackingListResponse
+    """
     return await service.get_tracking_list(
         rank_type=RankType.BLOG,
         status=status,
@@ -72,7 +80,11 @@ async def get_tracking_detail(
     tracking_id: int,
     service: RankService = Depends(get_rank_service),
 ) -> TrackingDetailResponse:
-    """블로그 글 순위 추적 상세 (히스토리 전체 포함)"""
+    """블로그 글 순위 추적 상세 (히스토리 전체 포함)
+
+    Response:
+        TrackingDetailResponse
+    """
     result = await service.get_tracking_detail(
         tracking_id=tracking_id,
     )
@@ -93,7 +105,11 @@ async def stop_tracking(
     tracking_id: int,
     service: RankService = Depends(get_rank_service),
 ) -> TrackingStopResponse:
-    """블로그 글 순위 추적 중단"""
+    """블로그 글 순위 추적 중단
+
+    Response:
+        TrackingStopResponse
+    """
     result = await service.stop_tracking(tracking_id)
     if not result:
         raise HTTPException(

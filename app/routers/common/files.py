@@ -51,6 +51,9 @@ async def upload_file(
     파일 업로드
 
     - file_type: business_license, logo, other
+
+    Response:
+        FileUploadResponse
     """
     try:
         uploaded = await service.upload(file, file_type)
@@ -67,7 +70,11 @@ async def download_file(
     file_id: int,
     service: FileService = Depends(get_file_service),
 ):
-    """파일 다운로드"""
+    """파일 다운로드
+
+    Response:
+        Binary file content
+    """
     content, file_meta = await service.download(file_id)
 
     if content is None or file_meta is None:

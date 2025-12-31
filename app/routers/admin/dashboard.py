@@ -29,5 +29,9 @@ def get_dashboard_service(
 async def get_dashboard(
     service: AdminDashboardService = Depends(get_dashboard_service),
 ) -> AdminDashboardResponse:
-    """관리자 대시보드 (통계 + 최근 승인 요청 5건)"""
+    """관리자 대시보드 (통계 + 최근 승인 요청 5건)
+
+    Response:
+        AdminDashboardResponse
+    """
     return await service.get_dashboard()

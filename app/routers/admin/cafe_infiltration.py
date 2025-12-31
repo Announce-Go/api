@@ -36,7 +36,11 @@ async def list_cafe_infiltrations(
     month: int = Query(..., ge=1, le=12, description="월"),
     service: CafeInfiltrationService = Depends(get_cafe_infiltration_service),
 ) -> CafeInfiltrationCalendarResponse:
-    """카페 침투 목록 (월별 + dailyCounts)"""
+    """카페 침투 목록 (월별 + dailyCounts)
+
+    Response:
+        CafeInfiltrationCalendarResponse
+    """
     return await service.get_calendar_list_admin(
         year=year,
         month=month,
@@ -53,7 +57,14 @@ async def create_cafe_infiltration(
     data: CafeInfiltrationCreateRequest,
     service: CafeInfiltrationService = Depends(get_cafe_infiltration_service),
 ) -> CafeInfiltrationListItem:
-    """카페 침투 등록"""
+    """카페 침투 등록
+
+    Request Body:
+        CafeInfiltrationCreateRequest
+
+    Response:
+        CafeInfiltrationListItem
+    """
     return await service.create(data)
 
 
@@ -67,7 +78,14 @@ async def update_cafe_infiltration(
     data: CafeInfiltrationUpdateRequest,
     service: CafeInfiltrationService = Depends(get_cafe_infiltration_service),
 ) -> CafeInfiltrationListItem:
-    """카페 침투 수정"""
+    """카페 침투 수정
+
+    Request Body:
+        CafeInfiltrationUpdateRequest
+
+    Response:
+        CafeInfiltrationListItem
+    """
     result = await service.update(infiltration_id, data)
     if not result:
         raise HTTPException(

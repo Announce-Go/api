@@ -53,7 +53,11 @@ async def list_blog_postings(
     agency_id: int = Depends(get_agency_id),
     service: BlogPostingService = Depends(get_blog_posting_service),
 ) -> BlogPostingListResponse:
-    """블로그 포스팅 목록 (본인 업체만)"""
+    """블로그 포스팅 목록 (본인 업체만)
+
+    Response:
+        BlogPostingListResponse
+    """
     return await service.get_list(
         agency_id=agency_id,
         keyword=keyword,
@@ -72,7 +76,14 @@ async def create_blog_posting(
     agency_id: int = Depends(get_agency_id),
     service: BlogPostingService = Depends(get_blog_posting_service),
 ) -> BlogPostingDetailResponse:
-    """블로그 포스팅 등록"""
+    """블로그 포스팅 등록
+
+    Request Body:
+        BlogPostingCreateRequest
+
+    Response:
+        BlogPostingDetailResponse
+    """
     return await service.create(data, agency_id)
 
 
@@ -85,7 +96,11 @@ async def get_blog_posting_detail(
     agency_id: int = Depends(get_agency_id),
     service: BlogPostingService = Depends(get_blog_posting_service),
 ) -> BlogPostingDetailResponse:
-    """블로그 포스팅 상세"""
+    """블로그 포스팅 상세
+
+    Response:
+        BlogPostingDetailResponse
+    """
     result = await service.get_detail(posting_id, agency_id=agency_id)
     if not result:
         raise HTTPException(
@@ -105,7 +120,14 @@ async def update_blog_posting(
     agency_id: int = Depends(get_agency_id),
     service: BlogPostingService = Depends(get_blog_posting_service),
 ) -> BlogPostingDetailResponse:
-    """블로그 포스팅 수정 (본인 것만)"""
+    """블로그 포스팅 수정 (본인 것만)
+
+    Request Body:
+        BlogPostingUpdateRequest
+
+    Response:
+        BlogPostingDetailResponse
+    """
     result = await service.update(posting_id, data, agency_id)
     if not result:
         raise HTTPException(

@@ -36,7 +36,11 @@ async def list_press_articles(
     month: int = Query(..., ge=1, le=12, description="월"),
     service: PressArticleService = Depends(get_press_article_service),
 ) -> PressArticleCalendarResponse:
-    """언론 기사 목록 (월별 + dailyCounts)"""
+    """언론 기사 목록 (월별 + dailyCounts)
+
+    Response:
+        PressArticleCalendarResponse
+    """
     return await service.get_calendar_list_admin(
         year=year,
         month=month,
@@ -53,7 +57,14 @@ async def create_press_article(
     data: PressArticleCreateRequest,
     service: PressArticleService = Depends(get_press_article_service),
 ) -> PressArticleListItem:
-    """언론 기사 등록"""
+    """언론 기사 등록
+
+    Request Body:
+        PressArticleCreateRequest
+
+    Response:
+        PressArticleListItem
+    """
     return await service.create(data)
 
 
@@ -67,7 +78,14 @@ async def update_press_article(
     data: PressArticleUpdateRequest,
     service: PressArticleService = Depends(get_press_article_service),
 ) -> PressArticleListItem:
-    """언론 기사 수정"""
+    """언론 기사 수정
+
+    Request Body:
+        PressArticleUpdateRequest
+
+    Response:
+        PressArticleListItem
+    """
     result = await service.update(article_id, data)
     if not result:
         raise HTTPException(
