@@ -32,11 +32,12 @@ class AdminMemberService:
     async def get_pending_signups(
         self,
         role: Optional[UserRole] = None,
-        skip: int = 0,
-        limit: int = 100,
+        page: int = 1,
+        page_size: int = 20,
     ) -> Tuple[List[User], int]:
         """승인 대기 중인 회원가입 요청 목록"""
-        users = await self._user_repo.get_pending_users(role, skip, limit)
+        skip = (page - 1) * page_size
+        users = await self._user_repo.get_pending_users(role, skip, page_size)
         total = await self._user_repo.count_pending_users(role)
         return users, total
 
@@ -127,12 +128,13 @@ class AdminMemberService:
         self,
         approval_status: Optional[ApprovalStatus] = None,
         search: Optional[str] = None,
-        skip: int = 0,
-        limit: int = 100,
+        page: int = 1,
+        page_size: int = 20,
     ) -> Tuple[List[Advertiser], int]:
         """광고주 목록 조회"""
+        skip = (page - 1) * page_size
         advertisers = await self._advertiser_repo.get_all(
-            approval_status, search, skip, limit
+            approval_status, search, skip, page_size
         )
         total = await self._advertiser_repo.count_all(approval_status, search)
         return advertisers, total
@@ -159,11 +161,12 @@ class AdminMemberService:
         self,
         approval_status: Optional[ApprovalStatus] = None,
         search: Optional[str] = None,
-        skip: int = 0,
-        limit: int = 100,
+        page: int = 1,
+        page_size: int = 20,
     ) -> Tuple[List[Agency], int]:
         """업체 목록 조회"""
-        agencies = await self._agency_repo.get_all(approval_status, search, skip, limit)
+        skip = (page - 1) * page_size
+        agencies = await self._agency_repo.get_all(approval_status, search, skip, page_size)
         total = await self._agency_repo.count_all(approval_status, search)
         return agencies, total
 

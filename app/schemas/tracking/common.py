@@ -6,6 +6,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 from app.models.tracking import RankType, TrackingStatus
+from app.schemas.pagination import PaginationMeta
 
 
 # === 실시간 순위 조회 ===
@@ -53,6 +54,7 @@ class TrackingListResponse(BaseModel):
 
     items: List[TrackingListItem]
     total: int
+    pagination: PaginationMeta
 
 
 class RankHistoryItem(BaseModel):

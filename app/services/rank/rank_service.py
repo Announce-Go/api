@@ -15,6 +15,7 @@ from app.crawler.naver import (
 )
 from app.models.tracking import RankHistory, RankTracking, RankType, TrackingStatus
 from app.repositories.tracking import RankHistoryRepository, RankTrackingRepository
+from app.schemas.pagination import PaginationMeta
 from app.schemas.tracking.common import (
     RankHistoryItem,
     RealtimeRankResponse,
@@ -73,8 +74,8 @@ class RankService:
         agency_id: Optional[int] = None,
         advertiser_id: Optional[int] = None,
         keyword: Optional[str] = None,
-        skip: int = 0,
-        limit: int = 100,
+        page: int = 1,
+        page_size: int = 20,
     ) -> TrackingListResponse:
         """
         추적 목록 조회
@@ -85,12 +86,13 @@ class RankService:
             agency_id: 업체 필터 (업체용)
             advertiser_id: 광고주 필터
             keyword: 키워드 검색
-            skip: 건너뛸 개수
-            limit: 가져올 개수
+            page: 페이지 번호 (1부터 시작)
+            page_size: 페이지당 항목 수
 
         Returns:
             TrackingListResponse: 추적 목록
         """
+        skip = (page - 1) * page_size
         trackings = await self._tracking_repo.get_list(
             rank_type=rank_type,
             status=status,
@@ -98,7 +100,7 @@ class RankService:
             advertiser_id=advertiser_id,
             keyword=keyword,
             skip=skip,
-            limit=limit,
+            limit=page_size,
         )
         total = await self._tracking_repo.count(
             rank_type=rank_type,
@@ -145,7 +147,8 @@ class RankService:
             )
             items.append(item)
 
-        return TrackingListResponse(items=items, total=total)
+        pagination = PaginationMeta.create(total=total, page=page, page_size=page_size)
+        return TrackingListResponse(items=items, total=total, pagination=pagination)
 
     # === 추적 상세 ===
 
@@ -154,8 +157,6 @@ class RankService:
         tracking_id: int,
         agency_id: Optional[int] = None,
         advertiser_id: Optional[int] = None,
-        history_skip: int = 0,
-        history_limit: int = 100,
     ) -> Optional[TrackingDetailResponse]:
         """
         추적 상세 조회
@@ -164,8 +165,6 @@ class RankService:
             tracking_id: 추적 ID
             agency_id: 업체 ID (업체 접근 시 권한 체크용)
             advertiser_id: 광고주 ID (광고주 접근 시 권한 체크용)
-            history_skip: 히스토리 건너뛸 개수
-            history_limit: 히스토리 가져올 개수
 
         Returns:
             TrackingDetailResponse: 추적 상세 (없거나 권한 없으면 None)
@@ -180,11 +179,9 @@ class RankService:
         if advertiser_id and tracking.advertiser_id != advertiser_id:
             return None
 
-        # 히스토리 가져오기
-        histories = await self._history_repo.get_by_tracking_id(
-            tracking_id, skip=history_skip, limit=history_limit
-        )
-        history_total = await self._history_repo.count_by_tracking_id(tracking_id)
+        # 히스토리 전체 가져오기
+        histories = await self._history_repo.get_all_by_tracking_id(tracking_id)
+        history_total = len(histories)
 
         return TrackingDetailResponse(
             id=tracking.id,

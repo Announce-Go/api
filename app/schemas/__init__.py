@@ -1,3 +1,4 @@
+from app.schemas.pagination import PaginationMeta
 from app.schemas.auth import (
     LoginRequest,
     LoginResponse,
@@ -66,6 +67,8 @@ from app.schemas.work_records import (
 )
 
 __all__ = [
+    # Pagination
+    "PaginationMeta",
     # Auth
     "LoginRequest",
     "LoginResponse",

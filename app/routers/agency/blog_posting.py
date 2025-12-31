@@ -48,8 +48,8 @@ async def get_agency_id(
 )
 async def list_blog_postings(
     keyword: Optional[str] = Query(None, description="키워드 검색"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    page: int = Query(1, ge=1, description="페이지 번호"),
+    page_size: int = Query(20, ge=1, le=1000, description="페이지당 항목 수"),
     agency_id: int = Depends(get_agency_id),
     service: BlogPostingService = Depends(get_blog_posting_service),
 ) -> BlogPostingListResponse:
@@ -57,8 +57,8 @@ async def list_blog_postings(
     return await service.get_list(
         agency_id=agency_id,
         keyword=keyword,
-        skip=skip,
-        limit=limit,
+        page=page,
+        page_size=page_size,
     )
 
 

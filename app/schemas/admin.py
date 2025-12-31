@@ -6,6 +6,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from app.models.agency import AgencyCategory
+from app.schemas.pagination import PaginationMeta
 from app.models.user import ApprovalStatus, UserRole
 from app.schemas.file import FileResponse
 
@@ -33,6 +34,7 @@ class SignupRequestListResponse(BaseModel):
 
     items: List[SignupRequestItem]
     total: int
+    pagination: PaginationMeta
 
 
 class SignupRequestDetailResponse(BaseModel):
@@ -99,6 +101,7 @@ class AdvertiserListResponse(BaseModel):
 
     items: List[AdvertiserListItem]
     total: int
+    pagination: PaginationMeta
 
 
 class MappedAgencyItem(BaseModel):
@@ -157,6 +160,7 @@ class AgencyListResponse(BaseModel):
 
     items: List[AgencyListItem]
     total: int
+    pagination: PaginationMeta
 
 
 class MappedAdvertiserItem(BaseModel):

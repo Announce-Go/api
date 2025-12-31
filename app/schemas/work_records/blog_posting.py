@@ -5,6 +5,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
+from app.schemas.pagination import PaginationMeta
+
 
 class BlogPostingCreateRequest(BaseModel):
     """블로그 포스팅 등록 요청"""
@@ -48,6 +50,7 @@ class BlogPostingListResponse(BaseModel):
 
     items: List[BlogPostingListItem]
     total: int
+    pagination: PaginationMeta
 
 
 class BlogPostingDetailResponse(BaseModel):

@@ -22,6 +22,7 @@ from app.schemas.admin import (
     SignupRequestItem,
     SignupRequestListResponse,
 )
+from app.schemas.pagination import PaginationMeta
 from app.schemas.file import FileResponse
 from app.services.admin_member_service import AdminMemberService
 
@@ -48,15 +49,17 @@ def get_admin_service(
 )
 async def list_signup_requests(
     role: Optional[UserRole] = Query(None, description="역할 필터"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    page: int = Query(1, ge=1, description="페이지 번호"),
+    page_size: int = Query(20, ge=1, le=1000, description="페이지당 항목 수"),
     service: AdminMemberService = Depends(get_admin_service),
 ) -> SignupRequestListResponse:
     """회원가입 승인 요청 목록 (필터, 검색)"""
-    users, total = await service.get_pending_signups(role, skip, limit)
+    users, total = await service.get_pending_signups(role, page, page_size)
+    pagination = PaginationMeta.create(total=total, page=page, page_size=page_size)
     return SignupRequestListResponse(
         items=[SignupRequestItem.model_validate(u) for u in users],
         total=total,
+        pagination=pagination,
     )
 
 
@@ -158,13 +161,13 @@ async def reject_signup(
 async def list_advertisers(
     approval_status: Optional[ApprovalStatus] = Query(None),
     search: Optional[str] = Query(None, description="이름/회사명/이메일 검색"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    page: int = Query(1, ge=1, description="페이지 번호"),
+    page_size: int = Query(20, ge=1, le=1000, description="페이지당 항목 수"),
     service: AdminMemberService = Depends(get_admin_service),
 ) -> AdvertiserListResponse:
     """광고주 목록 (검색)"""
     advertisers, total = await service.get_advertisers(
-        approval_status, search, skip, limit
+        approval_status, search, page, page_size
     )
 
     items = []
@@ -189,7 +192,8 @@ async def list_advertisers(
         )
         items.append(item)
 
-    return AdvertiserListResponse(items=items, total=total)
+    pagination = PaginationMeta.create(total=total, page=page, page_size=page_size)
+    return AdvertiserListResponse(items=items, total=total, pagination=pagination)
 
 
 @router.get(
@@ -257,13 +261,13 @@ async def get_advertiser_detail(
 async def list_agencies(
     approval_status: Optional[ApprovalStatus] = Query(None),
     search: Optional[str] = Query(None, description="이름/회사명/이메일 검색"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    page: int = Query(1, ge=1, description="페이지 번호"),
+    page_size: int = Query(20, ge=1, le=1000, description="페이지당 항목 수"),
     service: AdminMemberService = Depends(get_admin_service),
 ) -> AgencyListResponse:
     """업체 목록 (검색)"""
     agencies, total = await service.get_agencies(
-        approval_status, search, skip, limit
+        approval_status, search, page, page_size
     )
 
     items = []
@@ -281,7 +285,8 @@ async def list_agencies(
         )
         items.append(item)
 
-    return AgencyListResponse(items=items, total=total)
+    pagination = PaginationMeta.create(total=total, page=page, page_size=page_size)
+    return AgencyListResponse(items=items, total=total, pagination=pagination)
 
 
 @router.get(

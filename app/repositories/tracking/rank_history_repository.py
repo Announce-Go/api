@@ -34,13 +34,23 @@ class RankHistoryRepository:
         skip: int = 0,
         limit: int = 100,
     ) -> List[RankHistory]:
-        """추적 ID로 히스토리 목록 조회 (최신순)"""
+        """추적 ID로 히스토리 목록 조회 (최신순, 페이징)"""
         stmt = (
             select(RankHistory)
             .where(RankHistory.tracking_id == tracking_id)
             .order_by(RankHistory.checked_at.desc())
             .offset(skip)
             .limit(limit)
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_all_by_tracking_id(self, tracking_id: int) -> List[RankHistory]:
+        """추적 ID로 히스토리 전체 조회 (최신순)"""
+        stmt = (
+            select(RankHistory)
+            .where(RankHistory.tracking_id == tracking_id)
+            .order_by(RankHistory.checked_at.desc())
         )
         result = await self._session.execute(stmt)
         return list(result.scalars().all())

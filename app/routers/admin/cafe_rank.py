@@ -49,8 +49,8 @@ async def get_realtime_rank(
 async def list_trackings(
     status: Optional[TrackingStatus] = Query(None, description="상태 필터"),
     keyword: Optional[str] = Query(None, description="키워드 검색"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    page: int = Query(1, ge=1, description="페이지 번호"),
+    page_size: int = Query(20, ge=1, le=1000, description="페이지당 항목 수"),
     service: RankService = Depends(get_rank_service),
 ) -> TrackingListResponse:
     """카페 글 순위 추적 목록 (전체)"""
@@ -58,8 +58,8 @@ async def list_trackings(
         rank_type=RankType.CAFE,
         status=status,
         keyword=keyword,
-        skip=skip,
-        limit=limit,
+        page=page,
+        page_size=page_size,
     )
 
 
@@ -70,15 +70,11 @@ async def list_trackings(
 )
 async def get_tracking_detail(
     tracking_id: int,
-    history_skip: int = Query(0, ge=0),
-    history_limit: int = Query(100, ge=1, le=1000),
     service: RankService = Depends(get_rank_service),
 ) -> TrackingDetailResponse:
-    """카페 글 순위 추적 상세 (히스토리 포함)"""
+    """카페 글 순위 추적 상세 (히스토리 전체 포함)"""
     result = await service.get_tracking_detail(
         tracking_id=tracking_id,
-        history_skip=history_skip,
-        history_limit=history_limit,
     )
     if not result:
         raise HTTPException(

@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.work_records import BlogPosting
 from app.repositories.work_records import BlogPostingRepository
+from app.schemas.pagination import PaginationMeta
 from app.schemas.work_records.blog_posting import (
     BlogPostingCreateRequest,
     BlogPostingDetailResponse,
@@ -27,8 +28,8 @@ class BlogPostingService:
         agency_id: Optional[int] = None,
         advertiser_id: Optional[int] = None,
         keyword: Optional[str] = None,
-        skip: int = 0,
-        limit: int = 100,
+        page: int = 1,
+        page_size: int = 20,
     ) -> BlogPostingListResponse:
         """
         블로그 포스팅 목록 조회
@@ -37,18 +38,19 @@ class BlogPostingService:
             agency_id: 업체 필터 (업체용)
             advertiser_id: 광고주 필터
             keyword: 검색어
-            skip: 건너뛸 개수
-            limit: 가져올 개수
+            page: 페이지 번호 (1부터 시작)
+            page_size: 페이지당 항목 수
 
         Returns:
             BlogPostingListResponse: 포스팅 목록
         """
+        skip = (page - 1) * page_size
         postings = await self._repo.get_list(
             agency_id=agency_id,
             advertiser_id=advertiser_id,
             keyword=keyword,
             skip=skip,
-            limit=limit,
+            limit=page_size,
         )
         total = await self._repo.count(
             agency_id=agency_id,
@@ -79,7 +81,8 @@ class BlogPostingService:
             )
             items.append(item)
 
-        return BlogPostingListResponse(items=items, total=total)
+        pagination = PaginationMeta.create(total=total, page=page, page_size=page_size)
+        return BlogPostingListResponse(items=items, total=total, pagination=pagination)
 
     async def get_detail(
         self,
