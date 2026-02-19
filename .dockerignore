@@ -1,24 +1,67 @@
+# Git
 .git
 .gitignore
+
+# IDE
 .idea
+.vscode/
+*.swp
+*.swo
+
+# Python 가상환경
 .venv
+.Python
+
+# Python 캐시
 __pycache__
 *.pyc
 *.pyo
 *.pyd
-.Python
+
+# 패키지 빌드
 *.egg-info
 .eggs
 dist
 build
 *.egg
+
+# 테스트
 .pytest_cache
 .coverage
 htmlcov
-docs
-tests
+tests/
+
+# 환경변수 (보안!)
+.env
+.env.*
+!.env.example
+
+# 데이터베이스
+*.db
+*.sqlite
+*.sqlite3
+
+# 업로드 및 임시 파일
+uploads/
+*.log
+*.tmp
+~*
+
+# OS 메타데이터
+.DS_Store
+Thumbs.db
+
+# 문서
+docs/
 README.md
 requirement.md
+
+# Docker 파일 (자기 참조 방지)
 Dockerfile
 docker-compose.yml
 .dockerignore
+
+# 개발 도구
+.claude/
+claudedocs/
+refactor/
