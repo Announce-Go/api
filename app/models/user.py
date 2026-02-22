@@ -58,12 +58,12 @@ class User(Base, TimestampMixin):
 
     # 역할 및 상태
     role: Mapped[UserRole] = mapped_column(
-        SQLEnum(UserRole),
+        SQLEnum(UserRole, name="user_role"),
         nullable=False,
         default=UserRole.ADVERTISER,
     )
     approval_status: Mapped[ApprovalStatus] = mapped_column(
-        SQLEnum(ApprovalStatus),
+        SQLEnum(ApprovalStatus, name="approval_status"),
         nullable=False,
         default=ApprovalStatus.PENDING,
     )

@@ -45,7 +45,7 @@ class RankTracking(Base, TimestampMixin):
 
     # 순위 유형
     type: Mapped[RankType] = mapped_column(
-        SQLEnum(RankType),
+        SQLEnum(RankType, name="rank_type"),
         nullable=False,
         index=True,
     )
@@ -68,7 +68,7 @@ class RankTracking(Base, TimestampMixin):
 
     # 상태
     status: Mapped[TrackingStatus] = mapped_column(
-        SQLEnum(TrackingStatus),
+        SQLEnum(TrackingStatus, name="tracking_status"),
         nullable=False,
         default=TrackingStatus.ACTIVE,
         index=True,
