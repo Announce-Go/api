@@ -34,8 +34,6 @@ class Settings(BaseSettings):
 
     # === App ===
     APP_NAME: str = "Announce-Go API"
-    APP_ENV: str = "local"  # local, dev, prod
-    DEBUG: bool = True
     # === Database ===
     DB_TYPE: DatabaseType = DatabaseType.SQLITE
     DB_ECHO: bool = True  # SQL 쿼리 로깅

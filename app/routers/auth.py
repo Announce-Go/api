@@ -65,7 +65,7 @@ async def login(
             max_age=max_age,
             httponly=True,
             samesite="lax",
-            secure=settings.APP_ENV == "prod",
+            secure=False,
         )
 
         return result
