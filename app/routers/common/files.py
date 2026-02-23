@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from fastapi.responses import Response
 
 from app.core.config import Settings, get_settings
-from app.core.dependencies import get_db_session
-from app.core.storage.local_storage import LocalStorage
+from app.core.dependencies import get_db_session, get_storage_dep
+from app.core.storage.abstract_storage import AbstractStorage
 from app.models.file import FileType
 from app.repositories.file_repository import FileRepository
 from app.schemas.file import FileUploadResponse
@@ -20,22 +20,9 @@ if TYPE_CHECKING:
 router = APIRouter(prefix="/files", tags=["files"])
 
 
-# Storage 싱글턴
-_storage = None
-
-
-async def get_storage(settings: Settings = Depends(get_settings)):
-    """Storage 의존성"""
-    global _storage
-    if _storage is None:
-        _storage = LocalStorage(settings.UPLOAD_DIR)
-        await _storage.connect()
-    return _storage
-
-
 def get_file_service(
     db: AsyncSession = Depends(get_db_session),
-    storage=Depends(get_storage),
+    storage: AbstractStorage = Depends(get_storage_dep),
     settings: Settings = Depends(get_settings),
 ) -> FileService:
     return FileService(FileRepository(db), storage, settings)

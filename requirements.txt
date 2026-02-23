@@ -14,11 +14,12 @@ redis>=5.0.0
 
 # File Storage
 aiofiles>=23.0.0
+aioboto3>=12.0.0
 
 # Security
 passlib[bcrypt]>=1.7.4
 bcrypt==4.0.1
-python-multipart>=0.0.6
+python-multipart>=0.0.22
 
 # Crawler
 playwright>=1.40.0

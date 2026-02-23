@@ -19,6 +19,12 @@ class SessionStoreType(str, Enum):
     MEMORY = "memory"
 
 
+class StorageType(str, Enum):
+    """파일 저장소 타입"""
+    LOCAL = "local"
+    S3 = "s3"
+
+
 class Settings(BaseSettings):
     """
     애플리케이션 설정
@@ -79,7 +85,7 @@ class Settings(BaseSettings):
     ]
 
     # === Storage ===
-    STORAGE_TYPE: str = "local"  # local, s3
+    STORAGE_TYPE: StorageType = StorageType.LOCAL
     S3_BUCKET: str = ""
     S3_REGION: str = "ap-northeast-2"
 

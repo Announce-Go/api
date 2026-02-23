@@ -5,25 +5,28 @@ from typing import TYPE_CHECKING, Any, AsyncGenerator, Dict, Optional
 from fastapi import Cookie, Depends, HTTPException, status
 
 from app.core.config import Settings
-from app.core.factory import get_database, get_session_store
+from app.core.factory import get_database, get_session_store, get_storage
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
     from app.core.database.database import AbstractDatabase
     from app.core.session.session_store import AbstractSessionStore
+    from app.core.storage.abstract_storage import AbstractStorage
 
 
 # 싱글턴 인스턴스 참조
 _database: Optional[AbstractDatabase] = None
 _session_store: Optional[AbstractSessionStore] = None
+_storage: Optional[AbstractStorage] = None
 
 
 async def init_dependencies(settings: Settings) -> None:
     """앱 시작 시 의존성 초기화"""
-    global _database, _session_store
+    global _database, _session_store, _storage
     _database = await get_database(settings)
     _session_store = await get_session_store(settings)
+    _storage = await get_storage(settings)
 
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
@@ -40,6 +43,13 @@ async def get_session_store_dep() -> AbstractSessionStore:
     if _session_store is None:
         raise RuntimeError("Session store not initialized")
     return _session_store
+
+
+async def get_storage_dep() -> AbstractStorage:
+    """Storage 의존성"""
+    if _storage is None:
+        raise RuntimeError("Storage not initialized")
+    return _storage
 
 
 async def get_current_user(

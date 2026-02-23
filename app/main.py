@@ -25,6 +25,7 @@ async def lifespan(app: FastAPI):
     print(f"Starting {settings.APP_NAME}...")
     print(f"Database: {settings.DB_TYPE.value}")
     print(f"Session Store: {settings.SESSION_STORE_TYPE.value}")
+    print(f"Storage: {settings.STORAGE_TYPE.value}")
 
     await init_dependencies(settings)
 
