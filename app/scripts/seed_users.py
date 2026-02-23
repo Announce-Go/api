@@ -14,8 +14,11 @@ from __future__ import annotations
 import asyncio
 from typing import Dict, List, Tuple
 
+import structlog
+
 from app.core.config import get_settings
 from app.core.factory import close_all, get_database
+from app.core.logging import configure_logging
 from app.core.security import hash_password
 from app.models.advertiser import Advertiser
 from app.models.agency import Agency, AgencyCategory
@@ -83,6 +86,8 @@ ADVERTISER_DATA: List[Dict] = [
     },
 ]
 
+logger = structlog.get_logger()
+
 # 매핑: (agency_login_id, [advertiser_login_ids])
 MAPPING_DATA: List[Tuple[str, List[str]]] = [
     ("agency1", ["advertiser1", "advertiser2"]),
@@ -103,7 +108,7 @@ async def seed_admin(
     """Admin 계정 생성"""
     existing = await user_repo.get_by_login_id(ADMIN_DATA["login_id"])
     if existing:
-        print(f"[Admin] {ADMIN_DATA['login_id']} - Already exists")
+        logger.warning("admin_already_exists", login_id=ADMIN_DATA["login_id"])
         return 0
 
     admin = User(
@@ -115,7 +120,7 @@ async def seed_admin(
         approval_status=ApprovalStatus.APPROVED,
     )
     await user_repo.create(admin)
-    print(f"[Admin] {ADMIN_DATA['login_id']} - Created")
+    logger.info("admin_created", login_id=ADMIN_DATA["login_id"])
     return 1
 
 
@@ -131,7 +136,7 @@ async def seed_agencies(
     for data in AGENCY_DATA:
         existing = await user_repo.get_by_login_id(data["login_id"])
         if existing:
-            print(f"[Agency] {data['login_id']} - Already exists")
+            logger.warning("agency_already_exists", login_id=data["login_id"])
             # 기존 Agency ID 조회 (agency.id = user.id)
             agency = await agency_repo.get_by_id(existing.id)
             if agency:
@@ -158,7 +163,7 @@ async def seed_agencies(
         await agency_repo.create(agency)
         agency_id_map[data["login_id"]] = agency.id
 
-        print(f"[Agency] {data['login_id']} - Created")
+        logger.info("agency_created", login_id=data["login_id"])
         created += 1
 
     return created, agency_id_map
@@ -176,7 +181,7 @@ async def seed_advertisers(
     for data in ADVERTISER_DATA:
         existing = await user_repo.get_by_login_id(data["login_id"])
         if existing:
-            print(f"[Advertiser] {data['login_id']} - Already exists")
+            logger.warning("advertiser_already_exists", login_id=data["login_id"])
             # 기존 Advertiser ID 조회 (advertiser.id = user.id)
             advertiser = await advertiser_repo.get_by_id(existing.id)
             if advertiser:
@@ -200,7 +205,7 @@ async def seed_advertisers(
         await advertiser_repo.create(advertiser)
         advertiser_id_map[data["login_id"]] = advertiser.id
 
-        print(f"[Advertiser] {data['login_id']} - Created")
+        logger.info("advertiser_created", login_id=data["login_id"])
         created += 1
 
     return created, advertiser_id_map
@@ -217,24 +222,24 @@ async def seed_mappings(
     for agency_login_id, advertiser_login_ids in MAPPING_DATA:
         agency_id = agency_id_map.get(agency_login_id)
         if not agency_id:
-            print(f"[Mapping] {agency_login_id} - Agency not found, skipped")
+            logger.warning("mapping_agency_not_found", agency_login_id=agency_login_id)
             continue
 
         for advertiser_login_id in advertiser_login_ids:
             advertiser_id = advertiser_id_map.get(advertiser_login_id)
             if not advertiser_id:
-                print(
-                    f"[Mapping] {agency_login_id} -> {advertiser_login_id} - "
-                    "Advertiser not found, skipped"
+                logger.warning("mapping_advertiser_not_found",
+                    agency_login_id=agency_login_id,
+                    advertiser_login_id=advertiser_login_id,
                 )
                 continue
 
             # 이미 존재하는지 확인
             exists = await mapping_repo.exists(agency_id, advertiser_id)
             if exists:
-                print(
-                    f"[Mapping] {agency_login_id} -> {advertiser_login_id} - "
-                    "Already exists"
+                logger.warning("mapping_already_exists",
+                    agency_login_id=agency_login_id,
+                    advertiser_login_id=advertiser_login_id,
                 )
                 continue
 
@@ -243,7 +248,10 @@ async def seed_mappings(
                 advertiser_id=advertiser_id,
             )
             await mapping_repo.create(mapping)
-            print(f"[Mapping] {agency_login_id} -> {advertiser_login_id} - Created")
+            logger.info("mapping_created",
+                agency_login_id=agency_login_id,
+                advertiser_login_id=advertiser_login_id,
+            )
             created += 1
 
     return created
@@ -258,11 +266,7 @@ async def seed_users() -> None:
     """통합 시드 데이터 생성"""
     settings = get_settings()
 
-    print("=" * 60)
-    print("User Seed Script")
-    print("=" * 60)
-    print(f"Database: {settings.DB_TYPE.value}")
-    print("=" * 60)
+    logger.info("seed_users_starting", db=settings.DB_TYPE.value)
 
     # 공통 비밀번호 해시
     password_hash = hash_password(settings.ADMIN_PASSWORD)
@@ -270,8 +274,7 @@ async def seed_users() -> None:
     # 데이터베이스 연결
     db = await get_database(settings)
     await db.create_tables()
-    print("Database tables created/verified")
-    print("-" * 60)
+    logger.info("db_tables_verified")
 
     # 결과 집계
     admin_count = 0
@@ -303,17 +306,17 @@ async def seed_users() -> None:
             mapping_repo, agency_id_map, advertiser_id_map
         )
 
-    print("-" * 60)
-    print("=" * 60)
-    print(
-        f"Done! Created {admin_count} admin, {agency_count} agencies, "
-        f"{advertiser_count} advertisers, {mapping_count} mappings"
+    logger.info("seed_users_done",
+        admin=admin_count,
+        agencies=agency_count,
+        advertisers=advertiser_count,
+        mappings=mapping_count,
     )
-    print("=" * 60)
 
 
 async def main() -> None:
     """메인 함수"""
+    configure_logging()
     try:
         await seed_users()
     finally:

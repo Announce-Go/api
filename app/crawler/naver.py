@@ -4,7 +4,11 @@ import re
 import random
 from urllib.parse import quote, parse_qs, urlparse
 
+import structlog
+
 from app.crawler.browser_pool import BrowserPool
+
+logger = structlog.get_logger()
 
 
 USER_AGENTS = [
@@ -119,7 +123,7 @@ async def get_place_rank(keyword: str, place_id: str) -> int | None:
         place_section = await find_place_section(page)
 
         if not place_section:
-            print(f"Error: 플레이스 섹션을 찾을 수 없음 (keyword: {keyword})")
+            logger.warning("section_not_found", crawler="place", keyword=keyword)
             return None
 
         # 플레이스 섹션 내에서 업체명 링크들 찾기
@@ -142,7 +146,7 @@ async def get_place_rank(keyword: str, place_id: str) -> int | None:
         return None
 
     except Exception as e:
-        print(f"Crawling error: {e}")
+        logger.error("crawl_failed", crawler="place", keyword=keyword, exc_info=True)
         return None
 
     finally:
@@ -247,7 +251,7 @@ async def get_blog_rank(keyword: str, blog_id: str, log_no: str) -> int | None:
         popular_section = await find_popular_section(page)
 
         if not popular_section:
-            print(f"Error: 인기글 섹션을 찾을 수 없음 (keyword: {keyword})")
+            logger.warning("section_not_found", crawler="blog", keyword=keyword)
             return None
 
         # 섹션 내에서 블로그 링크들 찾기
@@ -272,7 +276,7 @@ async def get_blog_rank(keyword: str, blog_id: str, log_no: str) -> int | None:
         return None
 
     except Exception as e:
-        print(f"Crawling error: {e}")
+        logger.error("crawl_failed", crawler="blog", keyword=keyword, exc_info=True)
         return None
 
     finally:
@@ -346,7 +350,7 @@ async def get_cafe_rank(keyword: str, cafe_id: str, article_id: str) -> int | No
         popular_section = await find_popular_section(page)
 
         if not popular_section:
-            print(f"Error: 인기글 섹션을 찾을 수 없음 (keyword: {keyword})")
+            logger.warning("section_not_found", crawler="cafe", keyword=keyword)
             return None
 
         # 섹션 내에서 카페 링크들 찾기
@@ -372,7 +376,7 @@ async def get_cafe_rank(keyword: str, cafe_id: str, article_id: str) -> int | No
         return None
 
     except Exception as e:
-        print(f"Crawling error: {e}")
+        logger.error("crawl_failed", crawler="cafe", keyword=keyword, exc_info=True)
         return None
 
     finally:

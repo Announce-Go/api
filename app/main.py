@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
+import structlog
 from fastapi import FastAPI
 
 from app.core.config import DatabaseType, get_settings
 from app.core.dependencies import init_dependencies
 from app.core.factory import close_all, get_database
+from app.core.logging import configure_logging
 from app.core.openapi import setup_openapi
 from app.routers import (
     common_router,
@@ -15,17 +17,22 @@ from app.routers import (
     advertiser_router,
 )
 
+logger = structlog.get_logger()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """앱 수명주기 관리"""
     settings = get_settings()
+    configure_logging()
 
     # 시작: 인프라 초기화
-    print(f"Starting {settings.APP_NAME}...")
-    print(f"Database: {settings.DB_TYPE.value}")
-    print(f"Session Store: {settings.SESSION_STORE_TYPE.value}")
-    print(f"Storage: {settings.STORAGE_TYPE.value}")
+    logger.info("app_starting",
+        app_name=settings.APP_NAME,
+        db=settings.DB_TYPE.value,
+        session=settings.SESSION_STORE_TYPE.value,
+        storage=settings.STORAGE_TYPE.value,
+    )
 
     await init_dependencies(settings)
 
@@ -33,13 +40,13 @@ async def lifespan(app: FastAPI):
     if settings.DB_TYPE == DatabaseType.SQLITE:
         db = await get_database(settings)
         await db.create_tables()
-        print("Database tables created (SQLite)")
+        logger.info("sqlite_tables_created")
 
     yield
 
     # 종료: 정리
     await close_all()
-    print("Application shutdown complete")
+    logger.info("app_shutdown")
 
 
 app = FastAPI(

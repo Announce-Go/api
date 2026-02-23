@@ -25,6 +25,15 @@ class StorageType(str, Enum):
     S3 = "s3"
 
 
+class LogLevel(str, Enum):
+    """로그 레벨"""
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    CRITICAL = "CRITICAL"
+
+
 class Settings(BaseSettings):
     """
     애플리케이션 설정
@@ -40,6 +49,7 @@ class Settings(BaseSettings):
 
     # === App ===
     APP_NAME: str = "Announce-Go API"
+    LOG_LEVEL: LogLevel = LogLevel.INFO
     # === Database ===
     DB_TYPE: DatabaseType = DatabaseType.SQLITE
     DB_ECHO: bool = True  # SQL 쿼리 로깅
