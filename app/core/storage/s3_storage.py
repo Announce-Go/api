@@ -20,13 +20,14 @@ class S3Storage(AbstractStorage):
         self._client = None
 
     async def connect(self) -> None:
-        """S3 클라이언트 초기화
+        """S3 클라이언트 초기화 및 버킷 접근 검증
 
         boto3 기본 credential chain을 사용한다.
         (로컬: ~/.aws/credentials 또는 환경변수, ECS: Task Role)
         """
         session = aioboto3.Session(region_name=self._region)
         self._client = await session.client("s3").__aenter__()
+        await self._client.head_bucket(Bucket=self._bucket)  # 실제 버킷 접근 검증
 
     async def disconnect(self) -> None:
         """S3 클라이언트 종료"""
