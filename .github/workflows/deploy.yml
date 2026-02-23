@@ -83,6 +83,7 @@ jobs:
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            STORAGE_TYPE=s3
             S3_BUCKET=${{secrets.S3_BUCKET}}
 
       - name: Deploy to ECS
