@@ -3,12 +3,6 @@ Admin 계정 시드 스크립트
 
 사용법:
     python -m app.scripts.seed_admin
-
-환경변수:
-    ADMIN_LOGIN_ID: 관리자 로그인 ID (기본값: admin)
-    ADMIN_PASSWORD: 관리자 비밀번호 (필수)
-    ADMIN_EMAIL: 관리자 이메일 (기본값: admin@example.com)
-    ADMIN_NAME: 관리자 이름 (기본값: 관리자)
 """
 from __future__ import annotations
 
@@ -25,6 +19,13 @@ from app.repositories.user_repository import UserRepository
 
 logger = structlog.get_logger()
 
+ADMIN_DATA = {
+    "login_id": "admin",
+    "email": "admin@example.com",
+    "name": "관리자",
+    "password": "admin123",
+}
+
 
 async def seed_admin() -> None:
     """Admin 계정 생성 (없으면)"""
@@ -32,8 +33,8 @@ async def seed_admin() -> None:
 
     logger.info("seed_admin_starting",
         db=settings.DB_TYPE.value,
-        login_id=settings.ADMIN_LOGIN_ID,
-        email=settings.ADMIN_EMAIL,
+        login_id=ADMIN_DATA["login_id"],
+        email=ADMIN_DATA["email"],
     )
 
     # 데이터베이스 연결
@@ -48,17 +49,17 @@ async def seed_admin() -> None:
         user_repo = UserRepository(session)
 
         # 기존 admin 확인
-        existing_admin = await user_repo.get_by_login_id(settings.ADMIN_LOGIN_ID)
+        existing_admin = await user_repo.get_by_login_id(ADMIN_DATA["login_id"])
         if existing_admin:
             logger.warning("admin_already_exists", login_id=existing_admin.login_id)
             return
 
         # Admin 계정 생성
         admin = User(
-            login_id=settings.ADMIN_LOGIN_ID,
-            email=settings.ADMIN_EMAIL,
-            password_hash=hash_password(settings.ADMIN_PASSWORD),
-            name=settings.ADMIN_NAME,
+            login_id=ADMIN_DATA["login_id"],
+            email=ADMIN_DATA["email"],
+            password_hash=hash_password(ADMIN_DATA["password"]),
+            name=ADMIN_DATA["name"],
             role=UserRole.ADMIN,
             approval_status=ApprovalStatus.APPROVED,
         )

@@ -5,9 +5,6 @@ Admin 1개, Agency 3개, Advertiser 3개 + 매핑을 한 번에 생성
 
 사용법:
     python -m app.scripts.seed_users
-
-환경변수:
-    ADMIN_PASSWORD: 공통 비밀번호 (기본값: admin123)
 """
 from __future__ import annotations
 
@@ -34,6 +31,8 @@ from app.repositories.user_repository import UserRepository
 # =============================================================================
 # 시드 데이터 정의
 # =============================================================================
+
+SEED_PASSWORD = "admin123"
 
 ADMIN_DATA = {
     "login_id": "admin",
@@ -269,7 +268,7 @@ async def seed_users() -> None:
     logger.info("seed_users_starting", db=settings.DB_TYPE.value)
 
     # 공통 비밀번호 해시
-    password_hash = hash_password(settings.ADMIN_PASSWORD)
+    password_hash = hash_password(SEED_PASSWORD)
 
     # 데이터베이스 연결
     db = await get_database(settings)

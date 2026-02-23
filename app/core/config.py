@@ -78,12 +78,6 @@ class Settings(BaseSettings):
     REMEMBER_ME_EXPIRE_SECONDS: int = 60 * 60 * 24 * 30  # 30일
     SESSION_COOKIE_NAME: str = "session_id"
 
-    # === Admin Seed ===
-    ADMIN_LOGIN_ID: str = "admin"
-    ADMIN_PASSWORD: str = "admin123"  # 운영에서는 반드시 변경
-    ADMIN_EMAIL: str = "admin@example.com"
-    ADMIN_NAME: str = "관리자"
-
     # === File Upload ===
     UPLOAD_DIR: str = "./uploads"
     MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
