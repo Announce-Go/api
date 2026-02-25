@@ -85,6 +85,9 @@ jobs:
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             STORAGE_TYPE=s3
             S3_BUCKET=${{secrets.S3_BUCKET}}
+            SESSION_STORE_TYPE=redis
+            REDIS_SSL=true
+            REDIS_HOST=${{secrets.REDIS_HOST}}
 
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
