@@ -16,19 +16,23 @@ class RedisSessionStore(AbstractSessionStore):
         self,
         redis_url: str,
         default_expire: timedelta = timedelta(hours=24),
+        ssl_cert_reqs: Optional[str] = None,
     ):
         self._redis_url = redis_url
         self._default_expire = default_expire
+        self._ssl_cert_reqs = ssl_cert_reqs
         self._client: Optional[redis.Redis] = None
         self._prefix = "session:"
 
     async def connect(self) -> None:
         """Redis 연결"""
-        self._client = redis.from_url(
-            self._redis_url,
-            encoding="utf-8",
-            decode_responses=True,
-        )
+        kwargs: dict[str, Any] = {
+            "encoding": "utf-8",
+            "decode_responses": True,
+        }
+        if self._ssl_cert_reqs:
+            kwargs["ssl_cert_reqs"] = self._ssl_cert_reqs
+        self._client = redis.from_url(self._redis_url, **kwargs)
         # 연결 테스트
         await self._client.ping()
 

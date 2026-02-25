@@ -72,6 +72,8 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
     REDIS_PASSWORD: Optional[str] = None
+    REDIS_SSL: bool = False
+    REDIS_SSL_CERT_VERIFY: bool = False
 
     # === Session ===
     SESSION_EXPIRE_SECONDS: int = 60 * 60 * 24  # 24시간
@@ -116,9 +118,10 @@ class Settings(BaseSettings):
     @property
     def redis_url(self) -> str:
         """Redis 연결 URL"""
+        scheme = "rediss" if self.REDIS_SSL else "redis"
         if self.REDIS_PASSWORD:
-            return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
-        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+            return f"{scheme}://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+        return f"{scheme}://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
 
 @lru_cache

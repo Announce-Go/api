@@ -62,9 +62,11 @@ async def get_session_store(settings: Settings) -> AbstractSessionStore:
     if settings.SESSION_STORE_TYPE == SessionStoreType.REDIS:
         from app.core.session.redis_store import RedisSessionStore
 
+        ssl_cert_reqs = "none" if (settings.REDIS_SSL and not settings.REDIS_SSL_CERT_VERIFY) else None
         _session_store_instance = RedisSessionStore(
             settings.redis_url,
             default_expire=default_expire,
+            ssl_cert_reqs=ssl_cert_reqs,
         )
     else:
         from app.core.session.memory_store import MemorySessionStore
