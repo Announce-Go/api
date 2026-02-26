@@ -55,7 +55,10 @@ class AuthService:
             raise ValueError("비밀번호가 올바르지 않습니다.")
 
         # 3. 승인 상태 확인 (admin은 제외)
-        if user.role != UserRole.ADMIN and user.approval_status != ApprovalStatus.APPROVED:
+        if (
+            user.role != UserRole.ADMIN
+            and user.approval_status != ApprovalStatus.APPROVED
+        ):
             if user.approval_status == ApprovalStatus.PENDING:
                 raise PermissionError("승인 대기 중인 계정입니다.")
             raise PermissionError("승인이 거절된 계정입니다.")
@@ -69,6 +72,7 @@ class AuthService:
             "name": user.name,
             "role": user.role.value,
             "approval_status": user.approval_status.value,
+            "categories": user.agency.categories if user.agency else None,
         }
 
         # Remember Me에 따른 만료 시간 설정
@@ -87,6 +91,7 @@ class AuthService:
                 name=user.name,
                 role=user.role,
                 approval_status=user.approval_status,
+                categories=user.agency.categories if user.agency else None,
             ),
         )
 
@@ -113,6 +118,7 @@ class AuthService:
                 name=session_data["name"],
                 role=session_data["role"],
                 approval_status=session_data["approval_status"],
+                categories=session_data.get("categories"),
             ),
         )
 

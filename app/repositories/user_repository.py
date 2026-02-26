@@ -23,7 +23,11 @@ class UserRepository:
 
     async def get_by_login_id(self, login_id: str) -> User | None:
         """로그인 ID로 사용자 조회"""
-        stmt = select(User).where(User.login_id == login_id)
+        stmt = (
+            select(User)
+            .options(joinedload(User.agency))
+            .where(User.login_id == login_id)
+        )
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
