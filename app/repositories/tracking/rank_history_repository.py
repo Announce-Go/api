@@ -28,6 +28,22 @@ class RankHistoryRepository:
         await self._session.refresh(history)
         return history
 
+    async def get_today_by_tracking_id(
+        self, tracking_id: int, session_number: int
+    ) -> Optional[RankHistory]:
+        """오늘 날짜의 해당 tracking 히스토리 조회"""
+        today = datetime.utcnow().date()
+        result = await self._session.execute(
+            select(RankHistory).where(
+                and_(
+                    RankHistory.tracking_id == tracking_id,
+                    RankHistory.session_number == session_number,
+                    func.date(RankHistory.checked_at) == today,
+                )
+            )
+        )
+        return result.scalars().first()
+
     async def get_by_tracking_id(
         self,
         tracking_id: int,

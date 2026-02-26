@@ -2,28 +2,42 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Any
+from typing import Any, MutableMapping
 
 import structlog
+from structlog.types import EventDict
 
 from app.core.config import get_settings
 
 
-_LOG_KEY_ORDER = ("timestamp", "level", "logger", "event")
+_LOG_KEY_ORDER = ("process", "timestamp", "level", "logger", "event")
 
 
-def _order_keys(
-    logger: Any, method: str, event_dict: dict[str, Any]
-) -> dict[str, Any]:
-    """timestamp → level → logger → event → 나머지 키 순으로 재정렬"""
+def _get_process_type() -> str:
+    args = " ".join(sys.argv)
+    if "celery" in args:
+        if "worker" in args:
+            return "worker"
+        if "beat" in args:
+            return "beat"
+    return "api"
+
+
+def _inject_process_type(logger: Any, method: str, event_dict: EventDict) -> EventDict:
+    event_dict["process"] = _get_process_type()
+    return event_dict
+
+
+def _order_keys(logger: Any, method: str, event_dict: EventDict) -> EventDict:
     ordered = {k: event_dict.pop(k) for k in _LOG_KEY_ORDER if k in event_dict}
     ordered.update(event_dict)
-    return ordered
+    return ordered  # type: ignore
 
 
 def _shared_processors() -> list[Any]:
     return [
         structlog.contextvars.merge_contextvars,
+        _inject_process_type,
         structlog.stdlib.add_logger_name,
         structlog.stdlib.add_log_level,
         structlog.stdlib.PositionalArgumentsFormatter(),

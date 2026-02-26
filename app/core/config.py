@@ -90,6 +90,11 @@ class Settings(BaseSettings):
         "application/pdf",
     ]
 
+    # === Celery / Batch ===
+    CRAWL_SCHEDULE_HOUR: int = 1
+    CRAWL_SCHEDULE_MINUTE: int = 0
+    CRAWL_DELAY_SECONDS: int = 2
+
     # === Storage ===
     STORAGE_TYPE: StorageType = StorageType.LOCAL
     S3_BUCKET: str = ""
