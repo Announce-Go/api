@@ -4,11 +4,11 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import ForeignKey, Integer, String, Text
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.base import Base, TimestampMixin
+from app.models.base import Base, KSTDateTime, TimestampMixin
 
 if TYPE_CHECKING:
     from app.models.advertiser import Advertiser
@@ -134,7 +134,7 @@ class RankHistory(Base):
 
     # 체크 일시
     checked_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        KSTDateTime(),
         nullable=False,
     )
 
