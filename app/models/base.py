@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import DateTime, func, types
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-KST = ZoneInfo("Asia/Seoul")
+from app.core.timezone import KST
 
 
 class KSTDateTime(types.TypeDecorator):

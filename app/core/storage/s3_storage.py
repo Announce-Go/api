@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
 from pathlib import Path
 from typing import BinaryIO, Optional
 
@@ -9,6 +8,7 @@ import aioboto3
 from botocore.exceptions import ClientError
 
 from app.core.storage.abstract_storage import AbstractStorage
+from app.core.timezone import now_kst
 
 
 class S3Storage(AbstractStorage):
@@ -37,7 +37,7 @@ class S3Storage(AbstractStorage):
 
     def _generate_storage_path(self, original_filename: str) -> str:
         """고유한 저장 경로 생성 (YYYY/MM/DD/uuid.ext)"""
-        today = datetime.now().strftime("%Y/%m/%d")
+        today = now_kst().strftime("%Y/%m/%d")
         ext = Path(original_filename).suffix
         unique_name = f"{uuid.uuid4().hex}{ext}"
         return f"{today}/{unique_name}"

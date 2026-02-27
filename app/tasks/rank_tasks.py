@@ -5,9 +5,11 @@ import time
 from datetime import datetime, timezone
 
 import structlog
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.config import get_settings
+from app.core.timezone import _set_timezone
 from app.crawler.browser_pool import BrowserPool
 from app.crawler.naver import (
     extract_blog_id,
@@ -34,6 +36,7 @@ def _create_session_factory() -> async_sessionmaker[AsyncSession]:
         pool_size=5,
         max_overflow=10,
     )
+    event.listen(engine.sync_engine, "connect", _set_timezone)
     return async_sessionmaker(
         bind=engine,
         class_=AsyncSession,

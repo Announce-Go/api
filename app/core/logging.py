@@ -8,6 +8,7 @@ import structlog
 from structlog.types import EventDict
 
 from app.core.config import get_settings
+from app.core.timezone import now_kst
 
 
 _LOG_KEY_ORDER = ("process", "timestamp", "level", "logger", "event")
@@ -28,6 +29,11 @@ def _inject_process_type(logger: Any, method: str, event_dict: EventDict) -> Eve
     return event_dict
 
 
+def _add_kst_timestamp(logger: Any, method: str, event_dict: EventDict) -> EventDict:
+    event_dict["timestamp"] = now_kst().isoformat()
+    return event_dict
+
+
 def _order_keys(logger: Any, method: str, event_dict: EventDict) -> EventDict:
     ordered = {k: event_dict.pop(k) for k in _LOG_KEY_ORDER if k in event_dict}
     ordered.update(event_dict)
@@ -41,7 +47,7 @@ def _shared_processors() -> list[Any]:
         structlog.stdlib.add_logger_name,
         structlog.stdlib.add_log_level,
         structlog.stdlib.PositionalArgumentsFormatter(),
-        structlog.processors.TimeStamper(fmt="iso"),
+        _add_kst_timestamp,
         structlog.processors.StackInfoRenderer(),
     ]
 

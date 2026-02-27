@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.timezone import today_kst
 from app.models.tracking import RankHistory
 
 
@@ -32,7 +33,7 @@ class RankHistoryRepository:
         self, tracking_id: int, session_number: int
     ) -> Optional[RankHistory]:
         """오늘 날짜의 해당 tracking 히스토리 조회"""
-        today = datetime.utcnow().date()
+        today = today_kst()
         result = await self._session.execute(
             select(RankHistory).where(
                 and_(

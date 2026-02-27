@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from typing import AsyncGenerator
 
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.database.database import AbstractDatabase
+from app.core.timezone import _set_timezone
 from app.models.base import Base
 
 
@@ -20,6 +22,8 @@ class PostgreSQLDatabase(AbstractDatabase):
             pool_size=10,
             max_overflow=20,
         )
+        event.listen(self._engine.sync_engine, "connect", _set_timezone)
+
         self._session_factory = async_sessionmaker(
             bind=self._engine,
             class_=AsyncSession,

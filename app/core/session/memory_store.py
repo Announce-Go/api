@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
 from app.core.session.session_store import AbstractSessionStore
+from app.core.timezone import now_utc
 
 
 @dataclass
@@ -47,7 +48,7 @@ class MemorySessionStore(AbstractSessionStore):
 
     async def _cleanup_expired(self) -> None:
         """만료된 세션 삭제"""
-        now = datetime.utcnow()
+        now = now_utc()
         async with self._lock:
             expired_keys = [
                 key for key, entry in self._store.items() if entry.expires_at <= now
@@ -63,7 +64,7 @@ class MemorySessionStore(AbstractSessionStore):
                 return None
 
             # 만료 확인
-            if entry.expires_at <= datetime.utcnow():
+            if entry.expires_at <= now_utc():
                 del self._store[session_id]
                 return None
 
@@ -77,7 +78,7 @@ class MemorySessionStore(AbstractSessionStore):
     ) -> None:
         """세션 데이터 저장"""
         expire = expire or self._default_expire
-        expires_at = datetime.utcnow() + expire
+        expires_at = now_utc() + expire
 
         async with self._lock:
             self._store[session_id] = SessionEntry(
@@ -97,7 +98,7 @@ class MemorySessionStore(AbstractSessionStore):
             if entry is None:
                 return False
 
-            if entry.expires_at <= datetime.utcnow():
+            if entry.expires_at <= now_utc():
                 del self._store[session_id]
                 return False
 
@@ -106,7 +107,7 @@ class MemorySessionStore(AbstractSessionStore):
     async def refresh(self, session_id: str, expire: Optional[timedelta] = None) -> bool:
         """세션 만료 시간 갱신"""
         expire = expire or self._default_expire
-        expires_at = datetime.utcnow() + expire
+        expires_at = now_utc() + expire
 
         async with self._lock:
             entry = self._store.get(session_id)
