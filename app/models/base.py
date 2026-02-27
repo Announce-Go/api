@@ -39,8 +39,7 @@ class TimestampMixin:
     """생성/수정 시간 Mixin"""
 
     created_at: Mapped[datetime] = mapped_column(
-        #KSTDateTime(),
-        DateTime(timezone=True, ),
+        KSTDateTime(),
         server_default=func.now(),
         nullable=False,
     )
