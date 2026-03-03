@@ -65,6 +65,7 @@ celery_app.conf.update(
     beat_scheduler="redbeat.RedBeatScheduler",
     redbeat_redis_url=_redbeat_redis_url(),
     redbeat_key_prefix="batch:redbeat",
+    redbeat_lock_timeout=300,
 )
 
 celery_app.conf.beat_schedule = {
@@ -76,23 +77,3 @@ celery_app.conf.beat_schedule = {
         ),
     },
 }
-
-
-def _clear_redbeat_schedules():
-    """Beat 시작 전 RedBeat 스케줄을 삭제하여 config 변경이 항상 반영되도록 함"""
-    import redis as redis_lib
-
-    try:
-        r = redis_lib.from_url(_redbeat_redis_url())
-        prefix = celery_app.conf.get("redbeat_key_prefix", "redbeat")
-        keys = r.keys(f"{prefix}:*")
-        if keys:
-            r.delete(*keys)
-            logger.info("redbeat_schedules_cleared", deleted_keys=len(keys))
-    except Exception:
-        logger.warning("redbeat_schedules_clear_failed", exc_info=True)
-
-
-@signals.beat_init.connect
-def on_beat_init(**kwargs):
-    _clear_redbeat_schedules()
