@@ -65,7 +65,8 @@ celery_app.conf.update(
     beat_scheduler="redbeat.RedBeatScheduler",
     redbeat_redis_url=_redbeat_redis_url(),
     redbeat_key_prefix="batch:redbeat",
-    redbeat_lock_timeout=300,
+    redbeat_lock_timeout=900,
+    beat_max_loop_interval=300,
 )
 
 celery_app.conf.beat_schedule = {
