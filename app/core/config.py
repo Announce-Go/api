@@ -91,8 +91,8 @@ class Settings(BaseSettings):
     ]
 
     # === Celery / Batch ===
-    CRAWL_SCHEDULE_HOUR: int = 15
-    CRAWL_SCHEDULE_MINUTE: int = 30
+    CRAWL_SCHEDULE_HOUR: int = 1
+    CRAWL_SCHEDULE_MINUTE: int = 0
     CRAWL_DELAY_SECONDS: int = 2
 
     # === Storage ===
